@@ -2,6 +2,7 @@ package jp.ac.titech.itpro.sdl.game.entities;
 
 import jp.ac.titech.itpro.sdl.game.R;
 import jp.ac.titech.itpro.sdl.game.Rect;
+import jp.ac.titech.itpro.sdl.game.component.ColliderComponent;
 import jp.ac.titech.itpro.sdl.game.component.SimpleRenderableComponent;
 import jp.ac.titech.itpro.sdl.game.component.SpriteComponent;
 import jp.ac.titech.itpro.sdl.game.component.TransformComponent;
@@ -17,5 +18,9 @@ public class Wall extends Entity {
         addComponent(transform);
         addComponent(sprite);
         addComponent(new SimpleRenderableComponent(transform, sprite, RenderingLayers.LayerType.FORE_GROUND, this));
+        addComponent(new ColliderComponent(new Vector2(16,16), this) {
+            @Override
+            public void onCollide(ColliderComponent other) {}
+        });
     }
 }

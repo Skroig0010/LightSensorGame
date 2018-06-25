@@ -9,14 +9,16 @@ public abstract class ColliderComponent implements IComponent, ITransformable{
     private Vector2 position;
     private Vector2 size;
 
-    public ColliderComponent(Entity parent){
+    public ColliderComponent(Vector2 size, Entity parent){
         this.parent = parent;
+        this.size = size;
 
         // TransformComponentが書き換わったとき自動で位置を変更してくれるようにする
         try {
             Class<?> cls = Class.forName("jp.ac.titech.itpro.sdl.game.component.TransformComponent");
             TransformComponent component = parent.getComponent(cls);
             component.setTransformCallbacks(this);
+            position = component.getPosition();
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
@@ -33,8 +35,10 @@ public abstract class ColliderComponent implements IComponent, ITransformable{
     }
 
     public boolean on(ColliderComponent other){
-        // TODO:ここ書く
-        return false;
+        return position.x < other.getPosition().x + other.getSize().x
+            && position.y < other.getPosition().y + other.getSize().y
+            && other.getPosition().x < position.x + size.x
+            && other.getPosition().y < position.y + size.y;
     }
 
     @Override

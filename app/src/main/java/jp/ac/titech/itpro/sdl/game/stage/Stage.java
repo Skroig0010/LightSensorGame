@@ -25,15 +25,15 @@ public class Stage {
     private int width = 10;
     private int height = 10;
     private int[] mapdata = {
-            0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 1, 1, 1, 1, 0, 0, 0, 0, 0,
+            0, 1, 1, 1, 1, 1, 1, 1, 0, 0,
+            0, 1, 0, 0, 0, 0, 0, 1, 0, 0,
+            0, 1, 1, 1, 1, 1, 0, 1, 0, 0,
+            0, 0, 0, 0, 0, 1, 0, 1, 0, 0,
+            0, 1, 1, 1, 1, 1, 0, 1, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
+            0, 1, 1, 1, 1, 1, 1, 1, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            1, 0, 1, 0, 1, 0, 1, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0
     };
 
@@ -47,10 +47,10 @@ public class Stage {
             for (int x = 0; x < width; x++){
                 switch(mapdata[y * width + x]) {
                     case 0:
-                        map.set(x, y, new Floor(this, new Vector2(x * 64, y * 64)));
+                        map.set(x, y, new Floor(this, new Vector2(x * 16, y * 16)));
                         break;
                     case 1:
-                        map.set(x, y, new Wall(this, new Vector2(x * 64, y * 64)));
+                        map.set(x, y, new Wall(this, new Vector2(x * 16, y * 16)));
                         break;
                 }
             }
@@ -90,8 +90,8 @@ public class Stage {
         for (ColliderComponent collidable1 : collidables){
             for (ColliderComponent collidable2 : collidables){
                 if(collidable1 != collidable2 && collidable1.on(collidable2)){
-                    collidable1.on(collidable2);
-                    collidable2.on(collidable1);
+                    collidable1.onCollide(collidable2);
+                    collidable2.onCollide(collidable1);
                 }
             }
         }

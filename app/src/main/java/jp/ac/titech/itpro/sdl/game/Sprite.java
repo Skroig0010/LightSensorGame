@@ -59,8 +59,8 @@ public class Sprite {
     private int textureLocation;
     private int uvTransMatrixLocation;
 
-    private int width = 480;
-    private int height = 640;
+    private int width = 160;
+    private int height = 240;
 
     private float screenMatrix[] = {
             2.0f / width, 0, 0, 0,

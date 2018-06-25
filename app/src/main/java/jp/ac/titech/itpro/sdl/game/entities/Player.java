@@ -1,21 +1,16 @@
 package jp.ac.titech.itpro.sdl.game.entities;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import jp.ac.titech.itpro.sdl.game.MainActivity;
 import jp.ac.titech.itpro.sdl.game.R;
 import jp.ac.titech.itpro.sdl.game.Rect;
-import jp.ac.titech.itpro.sdl.game.Sprite;
+import jp.ac.titech.itpro.sdl.game.component.ColliderComponent;
 import jp.ac.titech.itpro.sdl.game.component.IRenderableComponent;
 import jp.ac.titech.itpro.sdl.game.component.IUpdatableComponent;
 import jp.ac.titech.itpro.sdl.game.component.NormalUpdatableComponent;
 import jp.ac.titech.itpro.sdl.game.component.SimpleRenderableComponent;
 import jp.ac.titech.itpro.sdl.game.component.TransformComponent;
-import jp.ac.titech.itpro.sdl.game.component.IComponent;
-import jp.ac.titech.itpro.sdl.game.component.IControllerComponent;
 import jp.ac.titech.itpro.sdl.game.component.SpriteComponent;
 import jp.ac.titech.itpro.sdl.game.component.TouchControllerComponent;
+import jp.ac.titech.itpro.sdl.game.math.Vector2;
 import jp.ac.titech.itpro.sdl.game.stage.RenderingLayers;
 import jp.ac.titech.itpro.sdl.game.stage.Stage;
 
@@ -26,6 +21,7 @@ public class Player extends Entity{
     TouchControllerComponent touch;
     IUpdatableComponent update;
     IRenderableComponent render;
+    ColliderComponent collider;
 
     public Player(Stage stage){
         super(stage);
@@ -34,11 +30,20 @@ public class Player extends Entity{
         touch = new TouchControllerComponent(this);
         final Entity parent = this;
         update = new NormalUpdatableComponent(this) {
+            private final int THRESHOLD_FLICK_VELOCITY = 10;
             @Override
             public void update() {
                 double rot = Math.atan2(touch.getDirection().y, touch.getDirection().x);
-                if(rot < 0)rot += 2 * Math.PI;
-                if(touch.getDirection().x * touch.getDirection().x + touch.getDirection().y * touch.getDirection().y > 50) {
+                float len = touch.getDirection().x * touch.getDirection().x +
+                        touch.getDirection().y * touch.getDirection().y;
+                if(len > THRESHOLD_FLICK_VELOCITY) {
+                    move(rot);
+                }
+            }
+
+            private void move(double rot){
+                if (rot < 0) rot += 2 * Math.PI;
+                if (touch.getDirection().x * touch.getDirection().x + touch.getDirection().y * touch.getDirection().y > 50) {
                     if (rot >= Math.PI / 4 && rot < Math.PI * 3 / 4) {
                         // 下向き
                         // TODO:移動処理が冗長なのを直す
@@ -56,12 +61,24 @@ public class Player extends Entity{
                 }
             }
         };
+
         render = new SimpleRenderableComponent(transform, sprite, RenderingLayers.LayerType.CHARACTER, this);
         addComponent(transform);
         addComponent(sprite);
         addComponent(touch);
         addComponent(update);
         addComponent(render);
+        collider = new ColliderComponent(new Vector2(16, 16), this) {
+            @Override
+            public void onCollide(ColliderComponent other) {
+                if(other.getParent() instanceof Wall){
+                    transform.setPosition(
+                            ((int)(transform.getPosition().x + 8) / 16) * 16,
+                            ((int)(transform.getPosition().y + 8) / 16) * 16);
+                }
+            }
+        };
+        addComponent(collider);
     }
 
     public void dispose(){
