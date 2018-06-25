@@ -70,14 +70,18 @@ public class Sprite {
     };
 
     public Sprite() {
+        // シェーダーの読み込み
         int vertexShader = loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
         int fragmentShader = loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode);
         shaderProgram = GLES20.glCreateProgram();
         GLES20.glAttachShader(shaderProgram, vertexShader);
         GLES20.glAttachShader(shaderProgram, fragmentShader);
         GLES20.glLinkProgram(shaderProgram);
+
+        // 頂点、UVのバッファ確保
         vertexBuffer = BufferUtil.convert(vertices);
         uvBuffer = BufferUtil.convert(uvs);
+
         // Attribute変数
         positionAttribute = GLES20.glGetAttribLocation(shaderProgram, "vPosition");
         GLES20.glEnableVertexAttribArray(positionAttribute);
@@ -85,7 +89,10 @@ public class Sprite {
         uvAttribute = GLES20.glGetAttribLocation(shaderProgram, "vUv");
         GLES20.glEnableVertexAttribArray(uvAttribute);
         GLES20.glVertexAttribPointer(uvAttribute, 2, GLES20.GL_FLOAT, false, 0, uvBuffer);
-        GLES20.glEnable(GLES20.GL_TEXTURE_2D);
+
+        // アルファブレンド有効化
+        GLES20.glEnable(GLES20.GL_BLEND);
+        GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
 
         // Uniform変数
         viewportMatrixLocation = GLES20.glGetUniformLocation(shaderProgram, "viewportMatrix");

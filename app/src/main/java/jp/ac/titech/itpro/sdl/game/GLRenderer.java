@@ -17,7 +17,6 @@ import jp.ac.titech.itpro.sdl.game.scenes.scenes.SceneStage;
 public class GLRenderer implements GLSurfaceView.Renderer {
     private Sprite sprite;
     private final Context context;
-    private Texture texture;
 
     private IScene scene;
 
@@ -27,16 +26,8 @@ public class GLRenderer implements GLSurfaceView.Renderer {
 
     @Override
     public void onSurfaceCreated(GL10 gl10, EGLConfig eglConfig) {
+        // スプライト描画クラスの作成
         sprite = new Sprite();
-        Resources res = context.getResources();
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inScaled = false;
-        Bitmap bmp = BitmapFactory.decodeResource(res, R.drawable.human, options);
-        try {
-            texture = new Texture(bmp);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
         // ここから下に作らないといけない
         scene = new SceneStage();
     }
@@ -51,7 +42,6 @@ public class GLRenderer implements GLSurfaceView.Renderer {
         scene.update();
         GLES20.glClearColor(0.0f, 0.0f, 1.0f, 1);
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
-        sprite.draw(110,110, texture, new Rect(6,6, 5, 5), 1);
         scene.render(sprite);
     }
 }
