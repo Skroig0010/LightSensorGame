@@ -30,34 +30,37 @@ public class Player extends Entity{
         touch = new TouchControllerComponent(this);
         final Entity parent = this;
         update = new NormalUpdatableComponent(this) {
-            private final int THRESHOLD_FLICK_VELOCITY = 10;
+            private final int THRESHOLD_FLICK_VELOCITY = 50;
+            private Vector2 veloc = new Vector2();
             @Override
             public void update() {
                 double rot = Math.atan2(touch.getDirection().y, touch.getDirection().x);
-                float len = touch.getDirection().x * touch.getDirection().x +
-                        touch.getDirection().y * touch.getDirection().y;
-                if(len > THRESHOLD_FLICK_VELOCITY) {
-                    move(rot);
+                float len = touch.getDirection().x * touch.getDirection().x + touch.getDirection().y * touch.getDirection().y;
+                // TODO:移動処理が冗長なのを直す
+                if((int)transform.getPosition().x % 16 == 0 && (int)transform.getPosition().y % 16 == 0){
+                    move(rot, len);
                 }
+                transform.setPosition(transform.getPosition().x + veloc.x, transform.getPosition().y + veloc.y);
             }
 
-            private void move(double rot){
+            private void move(double rot, float len){
                 if (rot < 0) rot += 2 * Math.PI;
-                if (touch.getDirection().x * touch.getDirection().x + touch.getDirection().y * touch.getDirection().y > 50) {
-                    if (rot >= Math.PI / 4 && rot < Math.PI * 3 / 4) {
-                        // 下向き
-                        // TODO:移動処理が冗長なのを直す
-                        transform.setPosition(transform.getPosition().x, transform.getPosition().y + 1);
-                    } else if (rot >= Math.PI * 3 / 4 && rot < Math.PI * 5 / 4) {
-                        // 左向き
-                        transform.setPosition(transform.getPosition().x - 1, transform.getPosition().y);
-                    } else if (rot >= Math.PI * 5 / 4 && rot < Math.PI * 7 / 4) {
-                        // 上向き
-                        transform.setPosition(transform.getPosition().x, transform.getPosition().y - 1);
-                    } else {
-                        // 右向き
-                        transform.setPosition(transform.getPosition().x + 1, transform.getPosition().y);
-                    }
+                if(len > THRESHOLD_FLICK_VELOCITY) {
+                        if (rot >= Math.PI / 4 && rot < Math.PI * 3 / 4) {
+                            // 下向き
+                            veloc = new Vector2(0, 1);
+                        } else if (rot >= Math.PI * 3 / 4 && rot < Math.PI * 5 / 4) {
+                            // 左向き
+                            veloc = new Vector2(-1, 0);
+                        } else if (rot >= Math.PI * 5 / 4 && rot < Math.PI * 7 / 4) {
+                            // 上向き
+                            veloc = new Vector2(0, -1);
+                        } else {
+                            // 右向き
+                            veloc = new Vector2(1, 0);
+                        }
+                }else{
+                    veloc = new Vector2();
                 }
             }
         };
