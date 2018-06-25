@@ -1,17 +1,20 @@
 package jp.ac.titech.itpro.sdl.game.component;
 
 import jp.ac.titech.itpro.sdl.game.Sprite;
+import jp.ac.titech.itpro.sdl.game.entities.Entity;
 import jp.ac.titech.itpro.sdl.game.stage.RenderingLayers;
 
 public class SimpleRenderableComponent implements IRenderableComponent {
     private TransformComponent transform;
     private SpriteComponent sprite;
     private RenderingLayers.LayerType type;
+    private Entity parent;
 
-    public SimpleRenderableComponent(TransformComponent transform, SpriteComponent sprite, RenderingLayers.LayerType type){
+    public SimpleRenderableComponent(TransformComponent transform, SpriteComponent sprite, RenderingLayers.LayerType type, Entity parent){
         this.transform = transform;
         this.sprite = sprite;
         this.type = type;
+        this.parent = parent;
     }
 
     @Override
@@ -22,12 +25,17 @@ public class SimpleRenderableComponent implements IRenderableComponent {
     @Override
     public void render(Sprite sprite) {
         sprite.draw(
-                transform.position.x,
-                transform.position.y,
-                this.sprite.texture,
+                transform.getPosition().x,
+                transform.getPosition().y,
+                this.sprite.getTexture(),
                 this.sprite.rect,
                4
         );
 
+    }
+
+    @Override
+    public Entity getParent() {
+        return parent;
     }
 }

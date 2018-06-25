@@ -1,6 +1,7 @@
 package jp.ac.titech.itpro.sdl.game.component;
 
 import jp.ac.titech.itpro.sdl.game.MainActivity;
+import jp.ac.titech.itpro.sdl.game.entities.Entity;
 import jp.ac.titech.itpro.sdl.game.math.Vector2;
 
 import static jp.ac.titech.itpro.sdl.game.component.IControllerComponent.*;
@@ -11,9 +12,11 @@ public class TouchControllerComponent implements IControllerComponent {
     private final float FLICK_THRESHOLD_VELOCITY = 32;
 
     private Vector2 veloc = new Vector2();
+    private Entity parent;
 
-    public TouchControllerComponent(){
+    public TouchControllerComponent(Entity parent){
         MainActivity.instance.setTccCallBack(this);
+        this.parent = parent;
     }
 
     @Override
@@ -39,5 +42,10 @@ public class TouchControllerComponent implements IControllerComponent {
 
     public void setTouchEvent(Vector2 veloc){
         this.veloc = veloc;
+    }
+
+    @Override
+    public Entity getParent() {
+        return parent;
     }
 }

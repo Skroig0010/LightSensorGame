@@ -27,7 +27,7 @@ public abstract class Entity {
         return components;
     }
 
-    public <T extends IComponent> T getComponent(Class<T> tClass) {
+    public <T extends IComponent> T getComponent(Class<?> tClass) {
         for(IComponent component : components){
             if(tClass.isInstance(component)){
                 return (T)component;
