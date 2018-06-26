@@ -36,11 +36,10 @@ public class Player extends Entity{
             public void update() {
                 double rot = Math.atan2(touch.getDirection().y, touch.getDirection().x);
                 float len = touch.getDirection().x * touch.getDirection().x + touch.getDirection().y * touch.getDirection().y;
-                // TODO:移動処理が冗長なのを直す
                 if((int)transform.getPosition().x % 16 == 0 && (int)transform.getPosition().y % 16 == 0){
                     move(rot, len);
                 }
-                transform.setPosition(transform.getPosition().x + veloc.x, transform.getPosition().y + veloc.y);
+                transform.setPosition(transform.getPosition().add(veloc));
             }
 
             private void move(double rot, float len){
