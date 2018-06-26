@@ -28,6 +28,7 @@ public class MainActivity extends Activity implements SensorEventListener{
     // 光センサー関連
     private SensorManager sensorManager;
     private Sensor lightSensor;
+    private float brightness;
 
     public static MainActivity instance;
 
@@ -95,7 +96,7 @@ public class MainActivity extends Activity implements SensorEventListener{
         super.onResume();
         boolean isSensor = sensorManager.registerListener(this, lightSensor, SensorManager.SENSOR_DELAY_GAME);
         if(!isSensor){
-            Toast.makeText(this, "光センサーがないのでこのゲームは遊べません。", Toast.LENGTH_LONG);
+            Toast.makeText(this, "端末に光センサーが付いてないのでこのゲームは遊べません。", Toast.LENGTH_LONG);
         }
     }
 
@@ -110,8 +111,11 @@ public class MainActivity extends Activity implements SensorEventListener{
 
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
-        float brightness = sensorEvent.values[0];
-        System.out.println(brightness);
+        brightness = sensorEvent.values[0];
+    }
+
+    public float getBrightness(){
+        return brightness;
     }
 
     @Override
