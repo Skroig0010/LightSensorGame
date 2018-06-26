@@ -50,7 +50,7 @@ public class Sprite {
         return shader;
     }
 
-    private int shaderProgram;
+    private Shader shaderProgram;
 
     private int positionAttribute;
     private int uvAttribute;
@@ -71,22 +71,17 @@ public class Sprite {
 
     public Sprite() {
         // シェーダーの読み込み
-        int vertexShader = loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
-        int fragmentShader = loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode);
-        shaderProgram = GLES20.glCreateProgram();
-        GLES20.glAttachShader(shaderProgram, vertexShader);
-        GLES20.glAttachShader(shaderProgram, fragmentShader);
-        GLES20.glLinkProgram(shaderProgram);
+        shaderProgram = new Shader("main");
 
         // 頂点、UVのバッファ確保
         vertexBuffer = BufferUtil.convert(vertices);
         uvBuffer = BufferUtil.convert(uvs);
 
         // Attribute変数
-        positionAttribute = GLES20.glGetAttribLocation(shaderProgram, "vPosition");
+        positionAttribute = shaderProgram.getAttributeLocation("vPosition");
         GLES20.glEnableVertexAttribArray(positionAttribute);
         GLES20.glVertexAttribPointer(positionAttribute, 3, GLES20.GL_FLOAT, false, 0, vertexBuffer);
-        uvAttribute = GLES20.glGetAttribLocation(shaderProgram, "vUv");
+        uvAttribute = shaderProgram.getAttributeLocation("vUv");
         GLES20.glEnableVertexAttribArray(uvAttribute);
         GLES20.glVertexAttribPointer(uvAttribute, 2, GLES20.GL_FLOAT, false, 0, uvBuffer);
 
@@ -95,14 +90,14 @@ public class Sprite {
         GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
 
         // Uniform変数
-        viewportMatrixLocation = GLES20.glGetUniformLocation(shaderProgram, "viewportMatrix");
-        transMatrixLocation = GLES20.glGetUniformLocation(shaderProgram, "transMatrix");
-        textureLocation = GLES20.glGetUniformLocation(shaderProgram, "texture");
-        uvTransMatrixLocation = GLES20.glGetUniformLocation(shaderProgram, "uvTransMatrix");
+        viewportMatrixLocation = shaderProgram.getUniformLocation("viewportMatrix");
+        transMatrixLocation = shaderProgram.getUniformLocation("transMatrix");
+        textureLocation = shaderProgram.getUniformLocation("texture");
+        uvTransMatrixLocation = shaderProgram.getUniformLocation("uvTransMatrix");
     }
 
     public void draw(float x, float y, Texture texture, Rect texRext, float mag) {
-        GLES20.glUseProgram(shaderProgram);
+        shaderProgram.useProgram();
 
         // サイズをテクスチャサイズに合わせて移動
         float[] transMatrix = new float[48];
