@@ -42,12 +42,7 @@ public class MainActivity extends Activity implements SensorEventListener{
         // OpenGL初期化
         glSurfaceView = new GLSurfaceView(this);
         glSurfaceView.setEGLContextClientVersion(2);
-        try {
-            mRenderer = new GLRenderer(this);
-        }catch (Exception e){
-            Log.e("error!だよ！",e.toString());
-            return;
-        }
+        mRenderer = new GLRenderer(this);
         glSurfaceView.setRenderer(mRenderer);
         glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
         setContentView(glSurfaceView);

@@ -34,8 +34,10 @@ public class Player extends Entity{
             private Vector2 veloc = new Vector2();
             @Override
             public void update() {
+                // 極座標系
                 double rot = Math.atan2(touch.getDirection().y, touch.getDirection().x);
                 float len = touch.getDirection().x * touch.getDirection().x + touch.getDirection().y * touch.getDirection().y;
+                // マスに沿った位置にいるなら移動を許可
                 if((int)transform.getPosition().x % 16 == 0 && (int)transform.getPosition().y % 16 == 0){
                     move(rot, len);
                 }
@@ -44,6 +46,7 @@ public class Player extends Entity{
 
             private void move(double rot, float len){
                 if (rot < 0) rot += 2 * Math.PI;
+                // フリック速度が閾値を超えていたら移動
                 if(len > THRESHOLD_FLICK_VELOCITY) {
                         if (rot >= Math.PI / 4 && rot < Math.PI * 3 / 4) {
                             // 下向き
@@ -59,6 +62,7 @@ public class Player extends Entity{
                             veloc = new Vector2(1, 0);
                         }
                 }else{
+                    // 超えてなかったら停止
                     veloc = new Vector2();
                 }
             }
