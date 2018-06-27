@@ -23,15 +23,31 @@ public abstract class Entity {
             stage.removeComponent(component);
         }
     }
-    public List<IComponent> getComponents() {
-        return components;
+    public <T extends IComponent> List<T>  getComponents(String typeName) {
+        List<T> lst = new ArrayList<T>();
+        try {
+            Class<?> cls = Class.forName(typeName);
+            for(IComponent component : components){
+                if(cls.isInstance(component)){
+                    lst.add((T)component);
+                }
+            }
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return lst;
     }
 
-    public <T extends IComponent> T getComponent(Class<?> tClass) {
-        for(IComponent component : components){
-            if(tClass.isInstance(component)){
-                return (T)component;
+    public <T extends IComponent> T getComponent(String typeName) {
+        try {
+            Class<?> cls = Class.forName(typeName);
+            for(IComponent component : components){
+                if(cls.isInstance(component)){
+                    return (T)component;
+                }
             }
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
         }
         return null;
     }

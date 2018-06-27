@@ -74,16 +74,7 @@ public class Player extends Entity{
         addComponent(touch);
         addComponent(update);
         addComponent(render);
-        collider = new ColliderComponent(new Vector2(16, 16), this) {
-            @Override
-            public void onCollide(ColliderComponent other) {
-                if(other.getParent() instanceof Wall){
-                    transform.setPosition(
-                            ((int)(transform.getPosition().x + 8) / 16) * 16,
-                            ((int)(transform.getPosition().y + 8) / 16) * 16);
-                }
-            }
-        };
+        collider = new ColliderComponent(new Vector2(16, 16), false, 1, this);
         addComponent(collider);
     }
 

@@ -10,8 +10,8 @@ import jp.ac.titech.itpro.sdl.game.math.Vector2;
 import jp.ac.titech.itpro.sdl.game.stage.RenderingLayers;
 import jp.ac.titech.itpro.sdl.game.stage.Stage;
 
-public class Wall extends Entity {
-    public Wall(Stage stage, Vector2 position) {
+public class BrightWall extends Entity {
+    public BrightWall(Stage stage, Vector2 position) {
         super(stage);
         TransformComponent transform = new TransformComponent(position, this);
         SpriteComponent sprite = new SpriteComponent(R.drawable.wall, new Rect(0, 0, 16, 16), this);

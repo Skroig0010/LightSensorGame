@@ -6,27 +6,6 @@ import android.opengl.Matrix;
 import java.nio.FloatBuffer;
 
 public class Sprite {
-    // TODO:ファイルから読み込む
-    public final String vertexShaderCode =
-            "attribute  vec4 vPosition;" +
-                    "attribute  vec2 vUv;" +
-                    "uniform mat4 viewportMatrix;" +
-                    "uniform mat4 transMatrix;" +
-                    "uniform mat4 uvTransMatrix;" +
-                    "varying vec2 uv;" +
-                    "void main() {" +
-                    "  uv = (uvTransMatrix * vec4(vUv, 0, 1)).xy;" +
-                    "  gl_Position = viewportMatrix * transMatrix * vPosition;" +
-                    "}";
-    //シンプル色は自分で指定(R,G,B ALPHA)指定
-    public final String fragmentShaderCode =
-            "precision mediump float;" +
-                    "uniform sampler2D texture;" +
-                    "varying vec2 uv;" +
-                    "void main() {" +
-                    "  gl_FragColor = texture2D(texture, uv);" +
-                    "}";
-
     private float vertices[] = {
             0.0f, 0.0f, 0.0f,
             1.0f, 0.0f, 0.0f,
@@ -42,13 +21,6 @@ public class Sprite {
     };
     private FloatBuffer vertexBuffer;
     private FloatBuffer uvBuffer;
-
-    private int loadShader(int type, String shaderCode) {
-        int shader = GLES20.glCreateShader(type);
-        GLES20.glShaderSource(shader, shaderCode);
-        GLES20.glCompileShader(shader);
-        return shader;
-    }
 
     private Shader shaderProgram;
 

@@ -57,6 +57,10 @@ public class Stage {
         }
     }
 
+    /**
+     * コンポーネント追加
+     * @param component
+     */
     public void addComponent(IComponent component){
         if (component instanceof IRenderableComponent) {
             IRenderableComponent renderable = (IRenderableComponent)component;
@@ -70,6 +74,10 @@ public class Stage {
         }
     }
 
+    /**
+     * コンポーネント削除
+     * @param component
+     */
     public void removeComponent(IComponent component){
         if (component instanceof IRenderableComponent) {
             IRenderableComponent renderable = (IRenderableComponent)component;
@@ -83,20 +91,36 @@ public class Stage {
         }
     }
 
+    /**
+     * ステージ更新処理
+     */
     public void update() {
+        // 全UpdatableComponentの更新
         for (IUpdatableComponent updatable:updatables ) {
             updatable.update();
         }
+
+        // 衝突判定
+        // TODO:O(n^2)なのよろしくないので(重くなったら)修正する
         for (ColliderComponent collidable1 : collidables){
             for (ColliderComponent collidable2 : collidables){
                 if(collidable1 != collidable2 && collidable1.on(collidable2)){
+                    // 衝突解消前の値を渡す
                     collidable1.onCollide(collidable2);
                     collidable2.onCollide(collidable1);
+                    // 両方共実態を持っているなら衝突解消を行う
+                    if(!(collidable1.isTrigger || collidable2.isTrigger)){
+                        collidable1.resolveCollision(collidable2);
+                    }
                 }
             }
         }
     }
 
+    /**
+     * ステージ描画処理
+     * @param sprite
+     */
     public void render(Sprite sprite) {
         // 順序が指定できればいいのに
         renderLayer(sprite, RenderingLayers.LayerType.BACK_GROUND);
