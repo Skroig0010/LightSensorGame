@@ -23,23 +23,7 @@ public class GaussSprite extends Sprite {
         horizontalLocation = shaderProgram.getUniformLocation("horizontal");
         weightLocation = shaderProgram.getUniformLocation("weight");
 
-        // setWeight(10);
-        // ↑が全然うまくできないので
-        // ↓適当な値を入れ直している
-        weight[0] = 1.0f;
-        weight[1] = 0.9f;
-        weight[2] = 0.8f;
-        weight[3] = 0.7f;
-        weight[4] = 0.6f;
-        weight[5] = 0.5f;
-        weight[6] = 0.4f;
-        weight[7] = 0.3f;
-        weight[8] = 0.2f;
-        weight[9] = 0.1f;
-
-        for(int i = 0; i < weight.length; i++){
-            weight[i] /= 4.5f;
-        }
+        setWeight(7);
     }
 
     public void setHorizontal(boolean horizontal){
@@ -50,7 +34,7 @@ public class GaussSprite extends Sprite {
         // gaussianフィルタの重み係数を算出
         weight = new float[10];
         double t = 0.0;
-        double d = value * value / 100;
+        double d = value * value;
         for(int i = 0; i < weight.length; i++){
             double r = 1.0 + 2.0 * i;
             double w = Math.exp(-0.5f * (r * r) / d);

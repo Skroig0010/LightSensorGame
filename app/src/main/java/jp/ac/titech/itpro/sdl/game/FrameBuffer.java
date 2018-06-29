@@ -26,6 +26,7 @@ public class FrameBuffer {
 
         try {
             texture = new Texture(width,height);
+            texture.setFilter(Texture.FilterType.LINEAR);
         }catch (Exception e){
             Toast.makeText(MainActivity.instance, "画像サイズが2べきじゃない", Toast.LENGTH_LONG);
         }

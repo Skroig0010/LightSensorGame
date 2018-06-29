@@ -27,7 +27,9 @@ public class SpriteComponent implements IComponent {
             options.inScaled = false;
             Bitmap bmp = BitmapFactory.decodeResource(res, id, options);
             try {
-                textures.put(id, new Texture(bmp));
+                Texture texture = new Texture(bmp);
+                texture.setFilter(Texture.FilterType.NEAREST);
+                textures.put(id, texture);
             } catch (Exception e) {
                 System.out.println("Bitmap size must be 2^n.");
             }

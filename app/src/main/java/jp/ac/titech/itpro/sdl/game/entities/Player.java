@@ -2,6 +2,7 @@ package jp.ac.titech.itpro.sdl.game.entities;
 
 import jp.ac.titech.itpro.sdl.game.R;
 import jp.ac.titech.itpro.sdl.game.Rect;
+import jp.ac.titech.itpro.sdl.game.component.BrightRenderableComponent;
 import jp.ac.titech.itpro.sdl.game.component.ColliderComponent;
 import jp.ac.titech.itpro.sdl.game.component.IRenderableComponent;
 import jp.ac.titech.itpro.sdl.game.component.IUpdatableComponent;
@@ -37,10 +38,10 @@ public class Player extends Entity{
                 // 極座標系
                 double rot = Math.atan2(touch.getDirection().y, touch.getDirection().x);
                 float len = touch.getDirection().x * touch.getDirection().x + touch.getDirection().y * touch.getDirection().y;
-                // マスに沿った位置にいるなら移動を許可
-                if((int)transform.getPosition().x % 16 == 0 && (int)transform.getPosition().y % 16 == 0){
-                }
                 move(rot, len);
+                // マスに沿った位置にいるなら移動を許可
+                // if((int)transform.getPosition().x % 16 == 0 && (int)transform.getPosition().y % 16 == 0){
+                // }
                 transform.setPosition(transform.getPosition().add(veloc));
             }
 
@@ -68,7 +69,7 @@ public class Player extends Entity{
             }
         };
 
-        render = new SimpleRenderableComponent(transform, sprite, RenderingLayers.LayerType.CHARACTER, this);
+        render = new BrightRenderableComponent(transform, sprite, RenderingLayers.LayerType.CHARACTER, this);
         addComponent(transform);
         addComponent(sprite);
         addComponent(touch);
