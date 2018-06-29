@@ -39,8 +39,8 @@ public class Player extends Entity{
                 float len = touch.getDirection().x * touch.getDirection().x + touch.getDirection().y * touch.getDirection().y;
                 // マスに沿った位置にいるなら移動を許可
                 if((int)transform.getPosition().x % 16 == 0 && (int)transform.getPosition().y % 16 == 0){
-                    move(rot, len);
                 }
+                move(rot, len);
                 transform.setPosition(transform.getPosition().add(veloc));
             }
 
@@ -50,16 +50,16 @@ public class Player extends Entity{
                 if(len > THRESHOLD_FLICK_VELOCITY) {
                         if (rot >= Math.PI / 4 && rot < Math.PI * 3 / 4) {
                             // 下向き
-                            veloc = new Vector2(0, 1);
+                            veloc = new Vector2(0, 3);
                         } else if (rot >= Math.PI * 3 / 4 && rot < Math.PI * 5 / 4) {
                             // 左向き
-                            veloc = new Vector2(-1, 0);
+                            veloc = new Vector2(-3, 0);
                         } else if (rot >= Math.PI * 5 / 4 && rot < Math.PI * 7 / 4) {
                             // 上向き
-                            veloc = new Vector2(0, -1);
+                            veloc = new Vector2(0, -3);
                         } else {
                             // 右向き
-                            veloc = new Vector2(1, 0);
+                            veloc = new Vector2(3, 0);
                         }
                 }else{
                     // 超えてなかったら停止

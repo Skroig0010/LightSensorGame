@@ -2,6 +2,7 @@ package jp.ac.titech.itpro.sdl.game.entities;
 
 import jp.ac.titech.itpro.sdl.game.R;
 import jp.ac.titech.itpro.sdl.game.Rect;
+import jp.ac.titech.itpro.sdl.game.component.BrightRenderableComponent;
 import jp.ac.titech.itpro.sdl.game.component.ColliderComponent;
 import jp.ac.titech.itpro.sdl.game.component.SimpleRenderableComponent;
 import jp.ac.titech.itpro.sdl.game.component.SpriteComponent;
@@ -14,10 +15,10 @@ public class BrightWall extends Entity {
     public BrightWall(Stage stage, Vector2 position) {
         super(stage);
         TransformComponent transform = new TransformComponent(position, this);
-        SpriteComponent sprite = new SpriteComponent(R.drawable.wall, new Rect(0, 0, 16, 16), this);
+        SpriteComponent sprite = new SpriteComponent(R.drawable.floor, new Rect(0, 0, 16, 16), this);
         addComponent(transform);
         addComponent(sprite);
-        addComponent(new SimpleRenderableComponent(transform, sprite, RenderingLayers.LayerType.FORE_GROUND, this));
+        addComponent(new BrightRenderableComponent(transform, sprite, RenderingLayers.LayerType.FORE_GROUND, this));
         addComponent(new ColliderComponent(new Vector2(16,16), false, 0, this));
     }
 }

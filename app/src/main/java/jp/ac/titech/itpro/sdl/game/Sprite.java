@@ -5,7 +5,7 @@ import android.opengl.Matrix;
 
 import java.nio.FloatBuffer;
 
-public class Sprite {
+public abstract class Sprite {
     private float vertices[] = {
             0.0f, 0.0f, 0.0f,
             1.0f, 0.0f, 0.0f,
@@ -22,28 +22,24 @@ public class Sprite {
     private FloatBuffer vertexBuffer;
     private FloatBuffer uvBuffer;
 
-    private Shader shaderProgram;
+    protected Shader shaderProgram;
 
     private int positionAttribute;
     private int uvAttribute;
-    private int transMatrixLocation;
-    private int viewportMatrixLocation;
-    private int textureLocation;
-    private int uvTransMatrixLocation;
 
-    private int width = 160;
-    private int height = 240;
+    public final int width = 160;
+    public final int height = 240;
 
-    private float screenMatrix[] = {
+    protected float screenMatrix[] = {
             2.0f / width, 0, 0, 0,
             0, -2.0f / height, 0, 0,
             0, 0, 1, 0,
             -1, 1, 0, 1
     };
 
-    public Sprite() {
+    public Sprite(String shaderName) {
         // シェーダーの読み込み
-        shaderProgram = new Shader("main");
+        shaderProgram = new Shader(shaderName);
 
         // 頂点、UVのバッファ確保
         vertexBuffer = BufferUtil.convert(vertices);
@@ -61,45 +57,39 @@ public class Sprite {
         GLES20.glEnable(GLES20.GL_BLEND);
         GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
 
-        // Uniform変数
-        viewportMatrixLocation = shaderProgram.getUniformLocation("viewportMatrix");
-        transMatrixLocation = shaderProgram.getUniformLocation("transMatrix");
-        textureLocation = shaderProgram.getUniformLocation("texture");
-        uvTransMatrixLocation = shaderProgram.getUniformLocation("uvTransMatrix");
     }
 
-    public void draw(float x, float y, Texture texture, Rect texRext, float mag) {
-        shaderProgram.useProgram();
-
+    public float[] getScaleMoveMatrix(float x, float y, float sizeX, float sizeY){
         // サイズをテクスチャサイズに合わせて移動
-        float[] transMatrix = new float[48];
+        float[] transMatrix = new float[32];
+        float[] retMatrix = new float[16];
+        Matrix.setIdentityM(retMatrix, 0);
         Matrix.setIdentityM(transMatrix, 0);
         Matrix.setIdentityM(transMatrix, 16);
-        Matrix.setIdentityM(transMatrix, 32);
-        Matrix.scaleM(transMatrix, 16, texRext.width * mag, texRext.height * mag, 0);
-        Matrix.translateM(transMatrix, 32, x, y, 0);
-        Matrix.multiplyMM(transMatrix, 0, transMatrix, 32, transMatrix, 16);
+        Matrix.scaleM(transMatrix, 0, sizeX, sizeY, 0);
+        Matrix.translateM(transMatrix, 16, x, y, 0);
+        Matrix.multiplyMM(retMatrix, 0, transMatrix, 16, transMatrix, 0);
+        return retMatrix;
+    }
 
-        // UVを正しい位置に移動させる行列
-        float[] uvTransMatrix = new float[48];
-        float uvWidth = (float)texRext.width / texture.width;
-        float uvHeight = (float)texRext.height / texture.height;
-        float uvX = (float)texRext.x / texture.width;
-        float uvY = (float)texRext.y / texture.height;
+    public float[] getUvScaleMoveMatrix(Rect texRext, Texture texture) {
+        float[] uvTransMatrix = new float[32];
+        float[] retMatrix = new float[16];
+        float uvWidth = (float) texRext.width / texture.width;
+        float uvHeight = (float) texRext.height / texture.height;
+        float uvX = (float) texRext.x / texture.width;
+        float uvY = (float) texRext.y / texture.height;
+        Matrix.setIdentityM(retMatrix, 0);
         Matrix.setIdentityM(uvTransMatrix, 0);
         Matrix.setIdentityM(uvTransMatrix, 16);
-        Matrix.setIdentityM(uvTransMatrix, 32);
-        Matrix.translateM(uvTransMatrix, 16, uvX, uvY, 0);
-        Matrix.scaleM(uvTransMatrix, 32, uvWidth, uvHeight, 0);
-        Matrix.multiplyMM(uvTransMatrix, 0, uvTransMatrix, 16, uvTransMatrix, 32);
-
-        // Uniform変数
-        texture.useTexture();
-        GLES20.glUniform1i(textureLocation, 0);
-        GLES20.glUniformMatrix4fv(viewportMatrixLocation, 1, false, screenMatrix, 0);
-        GLES20.glUniformMatrix4fv(transMatrixLocation, 1, false, transMatrix, 0);
-        GLES20.glUniformMatrix4fv(uvTransMatrixLocation, 1, false, uvTransMatrix, 0);
-
-        GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, vertices.length/3);
+        Matrix.translateM(uvTransMatrix, 0, uvX, uvY, 0);
+        Matrix.scaleM(uvTransMatrix, 16, uvWidth, uvHeight, 0);
+        Matrix.multiplyMM(retMatrix, 0, uvTransMatrix, 0, uvTransMatrix, 16);
+        return retMatrix;
     }
+
+
+    public abstract void render(float x, float y, Texture texture, Rect texRext);
+
+    public abstract void render(float x, float y, Texture texture, Rect texRext, float sizeX, float sizeY);
 }

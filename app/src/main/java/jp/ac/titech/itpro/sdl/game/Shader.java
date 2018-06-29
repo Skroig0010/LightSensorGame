@@ -1,6 +1,7 @@
 package jp.ac.titech.itpro.sdl.game;
 
 import android.opengl.GLES20;
+import android.util.Log;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
@@ -43,6 +44,10 @@ public class Shader {
         int shader = GLES20.glCreateShader(type);
         GLES20.glShaderSource(shader, shaderCode);
         GLES20.glCompileShader(shader);
+        final int[] comled = new int[1];
+        GLES20.glGetShaderiv(shader, GLES20.GL_COMPILE_STATUS, comled, 0);
+        String s = GLES20.glGetShaderInfoLog(shader);
+        Log.e("shader error", s);
         return shader;
     }
 

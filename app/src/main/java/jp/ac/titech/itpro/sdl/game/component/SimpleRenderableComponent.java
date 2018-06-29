@@ -3,7 +3,6 @@ package jp.ac.titech.itpro.sdl.game.component;
 import jp.ac.titech.itpro.sdl.game.Sprite;
 import jp.ac.titech.itpro.sdl.game.entities.Entity;
 import jp.ac.titech.itpro.sdl.game.stage.RenderingLayers;
-import jp.ac.titech.itpro.sdl.game.stage.Stage;
 
 public class SimpleRenderableComponent implements IRenderableComponent {
     private TransformComponent transform;
@@ -25,12 +24,11 @@ public class SimpleRenderableComponent implements IRenderableComponent {
 
     @Override
     public void render(Sprite sprite) {
-        sprite.draw(
+        sprite.render(
                 transform.getPosition().x,
                 transform.getPosition().y,
                 this.sprite.getTexture(),
-                this.sprite.rect,
-                1
+                this.sprite.rect
         );
 
     }
