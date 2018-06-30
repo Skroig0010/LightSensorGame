@@ -13,6 +13,7 @@ public abstract class Entity {
     public Entity(Stage stage){
         this.stage = stage;
     }
+
     public void addComponent(IComponent component){
         components.add(component);
         stage.addComponent(component);

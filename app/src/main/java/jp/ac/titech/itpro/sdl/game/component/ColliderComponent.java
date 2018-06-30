@@ -2,6 +2,9 @@ package jp.ac.titech.itpro.sdl.game.component;
 
 import android.widget.Toast;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import jp.ac.titech.itpro.sdl.game.MainActivity;
 import jp.ac.titech.itpro.sdl.game.entities.Entity;
 import jp.ac.titech.itpro.sdl.game.math.Vector2;
@@ -12,8 +15,9 @@ public class ColliderComponent implements IComponent, ITransformable{
     private Vector2 position;
     private Vector2 size;
     private TransformComponent transform;
-    public final boolean isTrigger;
-    private float invMass;
+    public boolean isTrigger;
+    public float invMass;
+    public final Set<ColliderComponent> prevCollided = new HashSet<>();
 
     public ColliderComponent(Vector2 size, Entity parent){
         this(size, true, 0, parent);
@@ -37,6 +41,14 @@ public class ColliderComponent implements IComponent, ITransformable{
     }
 
     public void onCollide(ColliderComponent other){
+        // オーバーライドして処理を決める
+    }
+
+    public void enterCollide(ColliderComponent other){
+        // オーバーライドして処理を決める
+    }
+
+    public void exitCollide(ColliderComponent other){
         // オーバーライドして処理を決める
     }
 
@@ -64,7 +76,7 @@ public class ColliderComponent implements IComponent, ITransformable{
         Vector2 v1 = position;
         float m1 = invMass;
         Vector2 v2 = other.getPosition();
-        float m2 = other.getInvMass();
+        float m2 = other.invMass;
         Vector2 size2 = other.getSize();
 
 
@@ -89,14 +101,6 @@ public class ColliderComponent implements IComponent, ITransformable{
         if(m1 != 0)transform.setPosition(v1.add(n.scale(d * m1 / (m1 + m2))));
         if(m2 != 0)other.getTransform().setPosition(v2.sub(n.scale(d * m2 / (m1 + m2))));
 
-    }
-
-    public float getInvMass(){
-        return invMass;
-    }
-
-    public void setInvMass(float invMass){
-        this.invMass = invMass;
     }
 
     @Override

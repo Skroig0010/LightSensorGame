@@ -16,17 +16,23 @@ import jp.ac.titech.itpro.sdl.game.component.ColliderComponent;
 import jp.ac.titech.itpro.sdl.game.component.IComponent;
 import jp.ac.titech.itpro.sdl.game.component.IRenderableComponent;
 import jp.ac.titech.itpro.sdl.game.component.IUpdatableComponent;
+import jp.ac.titech.itpro.sdl.game.component.MessageReceiverComponent;
 import jp.ac.titech.itpro.sdl.game.entities.BrightWall;
 import jp.ac.titech.itpro.sdl.game.entities.Floor;
 import jp.ac.titech.itpro.sdl.game.entities.Entity;
 import jp.ac.titech.itpro.sdl.game.entities.Player;
+import jp.ac.titech.itpro.sdl.game.entities.Switch;
+import jp.ac.titech.itpro.sdl.game.entities.VanishingWall;
 import jp.ac.titech.itpro.sdl.game.entities.Wall;
 import jp.ac.titech.itpro.sdl.game.math.Vector2;
+import jp.ac.titech.itpro.sdl.game.messages.Message;
 
 public class Stage {
-    private List<Entity> entities = new ArrayList<Entity>();
-    private List<IUpdatableComponent> updatables = new ArrayList<IUpdatableComponent>();
-    private List<ColliderComponent> collidables = new ArrayList<ColliderComponent>();
+    private List<Entity> entities = new ArrayList<>();
+    private List<IUpdatableComponent> updatables = new ArrayList<>();
+    private List<ColliderComponent> collidables = new ArrayList<>();
+    private List<MessageReceiverComponent> receivers = new ArrayList<>();
+    private List<MessageReceiverComponent> notified = new ArrayList<>();
     private Player player;
     private StageMap map;
 
@@ -36,14 +42,15 @@ public class Stage {
             0, 1, 1, 1, 1, 1, 1, 1, 0, 0,
             0, 2, 0, 0, 0, 0, 0, 1, 0, 0,
             0, 1, 2, 2, 1, 2, 0, 1, 0, 0,
-            0, 0, 0, 0, 0, 2, 0, 1, 0, 0,
+            0, 4, 0, 0, 0, 2, 0, 1, 0, 0,
             0, 1, 1, 2, 2, 2, 0, 1, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
+            3, 0, 0, 0, 0, 0, 0, 1, 0, 0,
             0, 1, 1, 2, 2, 2, 2, 1, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             1, 2, 1, 0, 1, 0, 1, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0
     };
+
 
     // 描画関連
     private RenderingLayers layers = new RenderingLayers();
@@ -74,6 +81,12 @@ public class Stage {
                     case 2:
                         map.set(x, y, new BrightWall(this, new Vector2(x * 16, y * 16)));
                         break;
+                    case 3:
+                        map.set(x, y, new Switch(this, new Vector2(x * 16, y * 16), false,0));
+                        break;
+                    case 4:
+                        map.set(x, y, new VanishingWall(this, new Vector2(x * 16, y * 16), 0, 1));
+                        break;
                 }
             }
         }
@@ -96,6 +109,9 @@ public class Stage {
         }
         if(component instanceof ColliderComponent){
             collidables.add((ColliderComponent)component);
+        }
+        if(component instanceof MessageReceiverComponent){
+            receivers.add((MessageReceiverComponent)component);
         }
     }
 
@@ -120,6 +136,13 @@ public class Stage {
      * ステージ更新処理
      */
     public void update() {
+
+        // メッセージを処理
+        for(MessageReceiverComponent receiver : notified){
+            receiver.processMessages();
+        }
+        notified.clear();
+
         // 全UpdatableComponentの更新
         for (IUpdatableComponent updatable:updatables ) {
             updatable.update();
@@ -127,19 +150,57 @@ public class Stage {
 
         // 衝突判定
         // TODO:O(n^2)なのよろしくないので(重くなったら)修正する
-        for (ColliderComponent collidable1 : collidables){
-            for (ColliderComponent collidable2 : collidables){
-                if(collidable1 != collidable2 && collidable1.on(collidable2)){
+        int size = collidables.size();
+        for(int i = 0; i < size; i++){
+            for (int j = 0; j < size; j++){
+                if(i <= j)break;
+                ColliderComponent collidable1 = collidables.get(i);
+                ColliderComponent collidable2 = collidables.get(j);
+                if(collidable1.on(collidable2)){
                     // 衝突解消前の値を渡す
                     collidable1.onCollide(collidable2);
                     collidable2.onCollide(collidable1);
                     // 両方共実態を持っているなら衝突解消を行う
                     if(!(collidable1.isTrigger || collidable2.isTrigger)){
                         collidable1.resolveCollision(collidable2);
+                    }else{
+                        if(!collidable1.prevCollided.contains(collidable2)){
+                            // 前回衝突していなかったらEnterを呼ぶ
+                            collidable1.enterCollide(collidable2);
+                            collidable2.enterCollide(collidable1);
+                            collidable1.prevCollided.add(collidable2);
+                            collidable2.prevCollided.add(collidable1);
+                        }
                     }
+                }else if((collidable1.isTrigger || collidable2.isTrigger) && collidable1.prevCollided.contains(collidable2)){
+                    // どっちかがトリガーで前回衝突していたら
+                    collidable1.exitCollide(collidable2);
+                    collidable2.exitCollide(collidable1);
+                    collidable1.prevCollided.remove(collidable2);
+                    collidable2.prevCollided.remove(collidable1);
                 }
             }
         }
+    }
+
+    // 全体通知
+    public void notifyAll(Message message){
+        // 全てのMessageQueueComponentに通知
+        for(MessageReceiverComponent receiver : receivers){
+            receiver.notify(message);
+        }
+    }
+
+    public void processNotified(){
+        for (MessageReceiverComponent receiver : notified){
+            receiver.processMessages();
+        }
+        notified.clear();
+    }
+
+    // MessageQueueComponentだけが使う
+    public void setNotified(MessageReceiverComponent receiver){
+        notified.add(receiver);
     }
 
     /**
