@@ -20,6 +20,7 @@ import jp.ac.titech.itpro.sdl.game.component.MessageReceiverComponent;
 import jp.ac.titech.itpro.sdl.game.entities.BrightWall;
 import jp.ac.titech.itpro.sdl.game.entities.Floor;
 import jp.ac.titech.itpro.sdl.game.entities.Entity;
+import jp.ac.titech.itpro.sdl.game.entities.MovableBox;
 import jp.ac.titech.itpro.sdl.game.entities.Player;
 import jp.ac.titech.itpro.sdl.game.entities.Switch;
 import jp.ac.titech.itpro.sdl.game.entities.VanishingWall;
@@ -43,11 +44,11 @@ public class Stage {
             0, 2, 0, 0, 0, 0, 0, 1, 0, 0,
             0, 1, 2, 2, 1, 2, 0, 1, 0, 0,
             0, 4, 0, 0, 0, 2, 0, 1, 0, 0,
-            0, 1, 1, 2, 2, 2, 0, 1, 0, 0,
+            0, 0, 1, 2, 2, 2, 0, 1, 0, 0,
             3, 0, 0, 0, 0, 0, 0, 1, 0, 0,
-            0, 1, 1, 2, 2, 2, 2, 1, 0, 0,
+            5, 0, 1, 2, 2, 2, 2, 1, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            1, 2, 1, 0, 1, 0, 1, 0, 0, 0,
+            0, 0, 1, 0, 1, 0, 1, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0
     };
 
@@ -82,11 +83,13 @@ public class Stage {
                         map.set(x, y, new BrightWall(this, new Vector2(x * 16, y * 16)));
                         break;
                     case 3:
-                        map.set(x, y, new Switch(this, new Vector2(x * 16, y * 16), false,0));
+                        map.set(x, y, new Switch(this, new Vector2(x * 16, y * 16), true,0));
                         break;
                     case 4:
                         map.set(x, y, new VanishingWall(this, new Vector2(x * 16, y * 16), 0, 1));
                         break;
+                    case 5:
+                        map.set(x, y, new MovableBox( new Vector2(x * 16, y * 16), this));
                 }
             }
         }
@@ -214,7 +217,7 @@ public class Stage {
         GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1);
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
         // enumの順序が上から下とは限らないので直接指定
-        lSprite.setDarkValue(Math.min(1f,Math.max(MainActivity.instance.getBrightness() / 500, 0.1f)));
+        lSprite.setDarkValue(Math.min(1f,Math.max(MainActivity.instance.getBrightness() / 500, 1.0f)));
         lSprite.setLightValue(1f);
         lSprite.setIsBright(false);
         renderLayer(lSprite, RenderingLayers.LayerType.BACK_GROUND);

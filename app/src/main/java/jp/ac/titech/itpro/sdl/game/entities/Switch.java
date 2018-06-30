@@ -1,5 +1,7 @@
 package jp.ac.titech.itpro.sdl.game.entities;
 
+import android.view.MotionEvent;
+
 import jp.ac.titech.itpro.sdl.game.R;
 import jp.ac.titech.itpro.sdl.game.Rect;
 import jp.ac.titech.itpro.sdl.game.component.ColliderComponent;
@@ -27,18 +29,16 @@ public class Switch extends Entity {
             @Override
             public void enterCollide(ColliderComponent other){
                 // プレイヤーに踏まれたら
-                if(other.getParent() instanceof Player){
-                    Message msg = Message.SWITCH_PRESSED;
-                    Object[] args = {wallNumber};
-                    msg.setArgs(args);
-                    stage.notifyAll(msg);
-                }
+                Message msg = Message.SWITCH_PRESSED;
+                Object[] args = {wallNumber};
+                msg.setArgs(args);
+                stage.notifyAll(msg);
             }
 
             @Override
             public void exitCollide(ColliderComponent other){
                 // プレイヤーが押していたのが離れたら
-                if(param.canRelease && other.getParent() instanceof Player){
+                if(param.canRelease){
                     Message msg = Message.SWITCH_RELEASED;
                     Object[] args = {wallNumber};
                     msg.setArgs(args);

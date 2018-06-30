@@ -11,8 +11,8 @@ import android.transition.Scene;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-import jp.ac.titech.itpro.sdl.game.scenes.scenes.IScene;
-import jp.ac.titech.itpro.sdl.game.scenes.scenes.SceneStage;
+import jp.ac.titech.itpro.sdl.game.scenes.IScene;
+import jp.ac.titech.itpro.sdl.game.scenes.SceneStage;
 
 public class GLRenderer implements GLSurfaceView.Renderer {
     private Sprite sprite;

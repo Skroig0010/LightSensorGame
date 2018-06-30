@@ -1,4 +1,4 @@
-package jp.ac.titech.itpro.sdl.game.scenes.scenes;
+package jp.ac.titech.itpro.sdl.game.scenes;
 
 import jp.ac.titech.itpro.sdl.game.Sprite;
 
