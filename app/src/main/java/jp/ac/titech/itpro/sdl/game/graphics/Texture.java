@@ -1,4 +1,4 @@
-package jp.ac.titech.itpro.sdl.game;
+package jp.ac.titech.itpro.sdl.game.graphics;
 
 import android.graphics.Bitmap;
 import android.opengl.GLES20;

@@ -9,9 +9,8 @@ import java.util.Map;
 
 import jp.ac.titech.itpro.sdl.game.MainActivity;
 import jp.ac.titech.itpro.sdl.game.Rect;
-import jp.ac.titech.itpro.sdl.game.Texture;
+import jp.ac.titech.itpro.sdl.game.graphics.Texture;
 import jp.ac.titech.itpro.sdl.game.entities.Entity;
-import jp.ac.titech.itpro.sdl.game.math.Vector2;
 
 public class SpriteComponent implements IComponent {
     private static Map<Integer, Texture> textures = new HashMap<Integer, Texture>();

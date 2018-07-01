@@ -1,4 +1,4 @@
-package jp.ac.titech.itpro.sdl.game;
+package jp.ac.titech.itpro.sdl.game.graphics;
 
 import android.opengl.GLES20;
 import android.util.Log;
@@ -10,6 +10,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import javax.microedition.khronos.opengles.GL;
+
+import jp.ac.titech.itpro.sdl.game.MainActivity;
 
 public class Shader {
     private int shaderProgram;

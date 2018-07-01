@@ -1,11 +1,7 @@
 package jp.ac.titech.itpro.sdl.game.entities;
 
-import java.util.List;
-
 import jp.ac.titech.itpro.sdl.game.R;
 import jp.ac.titech.itpro.sdl.game.Rect;
-import jp.ac.titech.itpro.sdl.game.Sprite;
-import jp.ac.titech.itpro.sdl.game.component.IComponent;
 import jp.ac.titech.itpro.sdl.game.component.SimpleRenderableComponent;
 import jp.ac.titech.itpro.sdl.game.component.SpriteComponent;
 import jp.ac.titech.itpro.sdl.game.component.TransformComponent;

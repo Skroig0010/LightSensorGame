@@ -14,6 +14,7 @@ import jp.ac.titech.itpro.sdl.game.component.TouchControllerComponent;
 import jp.ac.titech.itpro.sdl.game.math.Vector2;
 import jp.ac.titech.itpro.sdl.game.stage.RenderingLayers;
 import jp.ac.titech.itpro.sdl.game.stage.Stage;
+import jp.ac.titech.itpro.sdl.game.view.View;
 
 public class Player extends Entity{
 
@@ -43,6 +44,7 @@ public class Player extends Entity{
                 // if((int)transform.getPosition().x % 16 == 0 && (int)transform.getPosition().y % 16 == 0){
                 // }
                 transform.setPosition(transform.getPosition().add(veloc));
+                View.setTargetPosition(transform.getPosition().sub(72, 112));
             }
 
             private void move(double rot, float len){
@@ -69,7 +71,7 @@ public class Player extends Entity{
             }
         };
 
-        render = new BrightRenderableComponent(transform, sprite, RenderingLayers.LayerType.CHARACTER, this);
+        render = new SimpleRenderableComponent(transform, sprite, RenderingLayers.LayerType.CHARACTER, this);
         addComponent(transform);
         addComponent(sprite);
         addComponent(touch);

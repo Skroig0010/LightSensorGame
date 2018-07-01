@@ -3,7 +3,6 @@ package jp.ac.titech.itpro.sdl.game.entities;
 import java.util.ArrayList;
 import java.util.List;
 
-import jp.ac.titech.itpro.sdl.game.Sprite;
 import jp.ac.titech.itpro.sdl.game.component.IComponent;
 import jp.ac.titech.itpro.sdl.game.stage.Stage;
 

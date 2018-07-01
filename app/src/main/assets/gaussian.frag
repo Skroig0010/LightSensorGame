@@ -6,7 +6,7 @@ uniform bool      horizontal;
 varying vec2      uv;
 
 void main(void){
-    float tFrag = 1.0 / 256.0;
+    float tFrag = 1.0 / 128.0;
     float tw = 160./200.;
     float sw = 240./200.;
     vec2  fc = uv;

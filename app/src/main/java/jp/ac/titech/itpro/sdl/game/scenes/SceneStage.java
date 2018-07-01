@@ -1,6 +1,6 @@
 package jp.ac.titech.itpro.sdl.game.scenes;
 
-import jp.ac.titech.itpro.sdl.game.Sprite;
+import jp.ac.titech.itpro.sdl.game.graphics.sprite.Sprite;
 import jp.ac.titech.itpro.sdl.game.stage.Stage;
 
 public class SceneStage implements IScene {

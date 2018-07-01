@@ -5,13 +5,13 @@ import android.opengl.GLES20;
 import java.util.ArrayList;
 import java.util.List;
 
-import jp.ac.titech.itpro.sdl.game.FrameBuffer;
+import jp.ac.titech.itpro.sdl.game.graphics.FrameBuffer;
 import jp.ac.titech.itpro.sdl.game.GLRenderer;
-import jp.ac.titech.itpro.sdl.game.GaussSprite;
-import jp.ac.titech.itpro.sdl.game.LightSprite;
+import jp.ac.titech.itpro.sdl.game.graphics.sprite.GaussSprite;
+import jp.ac.titech.itpro.sdl.game.graphics.sprite.LightSprite;
 import jp.ac.titech.itpro.sdl.game.MainActivity;
 import jp.ac.titech.itpro.sdl.game.Rect;
-import jp.ac.titech.itpro.sdl.game.Sprite;
+import jp.ac.titech.itpro.sdl.game.graphics.sprite.Sprite;
 import jp.ac.titech.itpro.sdl.game.component.ColliderComponent;
 import jp.ac.titech.itpro.sdl.game.component.IComponent;
 import jp.ac.titech.itpro.sdl.game.component.IRenderableComponent;
@@ -25,8 +25,10 @@ import jp.ac.titech.itpro.sdl.game.entities.Player;
 import jp.ac.titech.itpro.sdl.game.entities.Switch;
 import jp.ac.titech.itpro.sdl.game.entities.VanishingWall;
 import jp.ac.titech.itpro.sdl.game.entities.Wall;
+import jp.ac.titech.itpro.sdl.game.graphics.sprite.UISprite;
 import jp.ac.titech.itpro.sdl.game.math.Vector2;
 import jp.ac.titech.itpro.sdl.game.messages.Message;
+import jp.ac.titech.itpro.sdl.game.view.View;
 
 public class Stage {
     private List<Entity> entities = new ArrayList<>();
@@ -55,14 +57,17 @@ public class Stage {
 
     // 描画関連
     private RenderingLayers layers = new RenderingLayers();
+    private UISprite uiSprite;
     // ぼかし用フレームバッファ
     private FrameBuffer gaussianFrameBuffer1, gaussianFrameBuffer2;
     private LightSprite lSprite;
     private GaussSprite gaussSprite;
     // 最終描画用フレームバッファ
     private FrameBuffer postFrameBuffer;
+    private final int fbSize = 128;
 
     public Stage(){
+        uiSprite = new UISprite();
         lSprite = new LightSprite();
         gaussSprite = new GaussSprite();
         player = new Player(this);
@@ -93,9 +98,9 @@ public class Stage {
                 }
             }
         }
-        gaussianFrameBuffer1 = new FrameBuffer(256, 256);
-        gaussianFrameBuffer2 = new FrameBuffer(256, 256);
-        postFrameBuffer = new FrameBuffer(256, 256);
+        gaussianFrameBuffer1 = new FrameBuffer(fbSize, fbSize);
+        gaussianFrameBuffer2 = new FrameBuffer(fbSize, fbSize);
+        postFrameBuffer = new FrameBuffer(fbSize, fbSize);
     }
 
     /**
@@ -211,13 +216,15 @@ public class Stage {
      * @param sprite
      */
     public void render(Sprite sprite) {
+        // Viewの座標を更新
+        View.update();
         // 白黒画像をそのまま描画
         gaussianFrameBuffer1.bindFrameBuffer();
         GLES20.glViewport(0, 0, gaussianFrameBuffer1.width, gaussianFrameBuffer1.height);
         GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1);
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
         // enumの順序が上から下とは限らないので直接指定
-        lSprite.setDarkValue(Math.min(1f,Math.max(MainActivity.instance.getBrightness() / 500, 1.0f)));
+        lSprite.setDarkValue(Math.min(1f,Math.max(MainActivity.instance.getBrightness() / 500, 0.5f)));
         lSprite.setLightValue(1f);
         lSprite.setIsBright(false);
         renderLayer(lSprite, RenderingLayers.LayerType.BACK_GROUND);
@@ -232,7 +239,7 @@ public class Stage {
 
         // Uniformを渡す
         gaussSprite.setHorizontal(false);
-        gaussSprite.render(0, 0, gaussianFrameBuffer1.getTexture(), new Rect(0, 0, 256, 256), 160, 240);
+        gaussSprite.render(0, 0, gaussianFrameBuffer1.getTexture(), new Rect(0, 0, fbSize, fbSize), 160, 240);
 
         postFrameBuffer.bindFrameBuffer();
         GLES20.glViewport(0, 0, postFrameBuffer.width, postFrameBuffer.height);
@@ -240,7 +247,7 @@ public class Stage {
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
         // Uniformを渡す
         gaussSprite.setHorizontal(true);
-        gaussSprite.render(0, 0, gaussianFrameBuffer2.getTexture(), new Rect(0, 0, 256, 256), 160, 240);
+        gaussSprite.render(0, 0, gaussianFrameBuffer2.getTexture(), new Rect(0, 0, fbSize, fbSize), 160, 240);
 
         postFrameBuffer.unbindFrameBuffer();
         GLES20.glViewport(0, 0, GLRenderer.getWidth(), GLRenderer.getHeight());
@@ -252,7 +259,7 @@ public class Stage {
         renderLayer(sprite, RenderingLayers.LayerType.FORE_GROUND);
         GLES20.glBlendFunc(GLES20.GL_ZERO, GLES20.GL_SRC_COLOR);
         // Uniformを渡す
-        sprite.render(0, 240, postFrameBuffer.getTexture(), new Rect(0, 0, 256, 256), 160, -240);
+        uiSprite.render(0, 240, postFrameBuffer.getTexture(), new Rect(0, 0, fbSize, fbSize), 160, -240);
         GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
     }
 

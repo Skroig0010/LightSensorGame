@@ -1,9 +1,14 @@
-package jp.ac.titech.itpro.sdl.game;
+package jp.ac.titech.itpro.sdl.game.graphics.sprite;
 
 import android.opengl.GLES20;
 import android.opengl.Matrix;
 
 import java.nio.FloatBuffer;
+
+import jp.ac.titech.itpro.sdl.game.BufferUtil;
+import jp.ac.titech.itpro.sdl.game.Rect;
+import jp.ac.titech.itpro.sdl.game.graphics.Shader;
+import jp.ac.titech.itpro.sdl.game.graphics.Texture;
 
 public abstract class Sprite {
     private float vertices[] = {
@@ -59,6 +64,9 @@ public abstract class Sprite {
 
     }
 
+    /**
+     * 画像を拡大した後動かす行列を作成するメソッド
+      */
     public float[] getScaleMoveMatrix(float x, float y, float sizeX, float sizeY){
         // サイズをテクスチャサイズに合わせて移動
         float[] transMatrix = new float[32];
@@ -72,6 +80,9 @@ public abstract class Sprite {
         return retMatrix;
     }
 
+    /**
+     * テクスチャのUV座標を適切な位置に変換する行列を作成するメソッド
+      */
     public float[] getUvScaleMoveMatrix(Rect texRext, Texture texture) {
         float[] uvTransMatrix = new float[32];
         float[] retMatrix = new float[16];

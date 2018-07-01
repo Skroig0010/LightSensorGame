@@ -33,16 +33,32 @@ public class Vector2 {
         return new Vector2(x + other.x, y + other.y);
     }
 
+    public Vector2 add(float x, float y){
+        return new Vector2(this.x + x, this.y + y);
+    }
+
     public Vector2 sub(Vector2 other){
         return new Vector2(x - other.x, y - other.y);
+    }
+
+    public Vector2 sub(float x, float y){
+        return new Vector2(this.x - x, this.y - y);
     }
 
     public float dot(Vector2 other){
         return x * other.x + y * other.y;
     }
 
+    public float dot(float x, float y){
+        return this.x * x + this.y * y;
+    }
+
     public float cross(Vector2 other){
         return x * other.y - y - other.x;
+    }
+
+    public float cross(float x, float y){
+        return this.x * y - this.y - x;
     }
 
     public Vector2 scale(float scalar){

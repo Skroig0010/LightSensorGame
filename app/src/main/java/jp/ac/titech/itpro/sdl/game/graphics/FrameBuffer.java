@@ -1,7 +1,9 @@
-package jp.ac.titech.itpro.sdl.game;
+package jp.ac.titech.itpro.sdl.game.graphics;
 
 import android.opengl.GLES20;
 import android.widget.Toast;
+
+import jp.ac.titech.itpro.sdl.game.MainActivity;
 
 public class FrameBuffer {
     private int[] frameBuffer;

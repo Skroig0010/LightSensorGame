@@ -1,18 +1,16 @@
 package jp.ac.titech.itpro.sdl.game;
 
 import android.content.Context;
-import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
-import android.transition.Scene;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import jp.ac.titech.itpro.sdl.game.scenes.IScene;
 import jp.ac.titech.itpro.sdl.game.scenes.SceneStage;
+import jp.ac.titech.itpro.sdl.game.graphics.sprite.NormalSprite;
+import jp.ac.titech.itpro.sdl.game.graphics.sprite.Sprite;
 
 public class GLRenderer implements GLSurfaceView.Renderer {
     private Sprite sprite;
