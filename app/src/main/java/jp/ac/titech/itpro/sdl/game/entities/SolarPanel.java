@@ -8,6 +8,7 @@ import jp.ac.titech.itpro.sdl.game.component.SimpleRenderableComponent;
 import jp.ac.titech.itpro.sdl.game.component.SpriteComponent;
 import jp.ac.titech.itpro.sdl.game.component.TransformComponent;
 import jp.ac.titech.itpro.sdl.game.component.parameters.SolerParameterComponent;
+import jp.ac.titech.itpro.sdl.game.graphics.animation.AnimationController;
 import jp.ac.titech.itpro.sdl.game.math.Vector2;
 import jp.ac.titech.itpro.sdl.game.messages.Message;
 import jp.ac.titech.itpro.sdl.game.stage.RenderingLayers;
@@ -17,7 +18,9 @@ public class SolarPanel extends Entity {
     public SolarPanel(final Stage stage, Vector2 position, int id) {
         super(stage);
         TransformComponent transform = new TransformComponent(position, this);
-        SpriteComponent sprite = new SpriteComponent(R.drawable.solar,  16, 16, this);
+        final SpriteComponent sprite = new SpriteComponent(R.drawable.solar,  16, 16, this);
+        sprite.controller.addAnimation(sprite.controller.new AnimationData(0), "bright");
+        sprite.controller.addAnimation(sprite.controller.new AnimationData(1), "dark");
         addComponent(transform);
         addComponent(sprite);
         final SolerParameterComponent param = new SolerParameterComponent(id, this);
@@ -32,10 +35,12 @@ public class SolarPanel extends Entity {
                     Message msg = Message.POWER_SUPPLY;
                     msg.setArgs(new Object[]{param.id});
                     stage.notifyAll(msg);
+                    sprite.controller.setCurrentAnimation("bright");
                 }else{
                     Message msg = Message.POWER_STOP;
                     msg.setArgs(new Object[]{param.id});
                     stage.notifyAll(msg);
+                    sprite.controller.setCurrentAnimation("dark");
                 }
             }
         });

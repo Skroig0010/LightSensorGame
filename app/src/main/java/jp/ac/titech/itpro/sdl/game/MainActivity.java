@@ -26,7 +26,7 @@ public class MainActivity extends Activity implements SensorEventListener{
     // 光センサー関連
     private SensorManager sensorManager;
     private Sensor lightSensor;
-    private float brightness;
+    private float brightness = 1;
 
     public static MainActivity instance;
 
@@ -103,13 +103,14 @@ public class MainActivity extends Activity implements SensorEventListener{
 
     private boolean first = true;
 
-    private float initialBrightness;
+    private float initialBrightness = 1;
 
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
         brightness = sensorEvent.values[0];
         if(first){
             initialBrightness = brightness;
+            if(initialBrightness == 0)initialBrightness = 1;
             first = false;
         }
     }

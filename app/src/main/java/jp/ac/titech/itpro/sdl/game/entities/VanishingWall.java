@@ -21,6 +21,8 @@ public class VanishingWall extends Entity {
         final SpriteComponent sprite = new SpriteComponent(R.drawable.vanishingwall,  16, 16, this);
         sprite.controller.addAnimation(sprite.controller.new AnimationData(0), "on");
         sprite.controller.addAnimation(sprite.controller.new AnimationData(1), "off");
+        sprite.controller.addAnimation(sprite.controller.new AnimationData(2), "on-dark");
+        sprite.controller.addAnimation(sprite.controller.new AnimationData(3), "off-dark");
         addComponent(transform);
         final ColliderComponent collider = new ColliderComponent(new Vector2(16,16), false, 0, this);
         final WallParameterComponent param = new WallParameterComponent(switchIds, nSwitchRequired, powerId, this);
@@ -46,6 +48,12 @@ public class VanishingWall extends Entity {
                         collider.isTrigger = false;
                         renderable.setLayerType(RenderingLayers.LayerType.FORE_GROUND);
                         sprite.controller.setCurrentAnimation("on");
+                    }
+                }else{
+                    if(collider.isTrigger){
+                        sprite.controller.setCurrentAnimation("off-dark");
+                    }else{
+                        sprite.controller.setCurrentAnimation("on-dark");
                     }
                 }
             }

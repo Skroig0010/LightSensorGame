@@ -90,7 +90,12 @@ public class Player extends Entity{
         addComponent(touch);
         addComponent(update);
         addComponent(render);
-        collider = new ColliderComponent(new Vector2(16, 16), false, 1, this);
+        collider = new ColliderComponent(new Vector2(16, 16), false, 1, this){
+            @Override
+            public void onCollide(ColliderComponent other){
+                View.setTargetPosition(transform.getPosition().sub(72, 112));
+            }
+        };
         addComponent(collider);
     }
 

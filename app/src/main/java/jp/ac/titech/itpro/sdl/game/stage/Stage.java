@@ -7,6 +7,7 @@ import java.util.List;
 
 import jp.ac.titech.itpro.sdl.game.component.LightSensorComponent;
 import jp.ac.titech.itpro.sdl.game.component.SpriteComponent;
+import jp.ac.titech.itpro.sdl.game.entities.PowerWay;
 import jp.ac.titech.itpro.sdl.game.entities.SolarPanel;
 import jp.ac.titech.itpro.sdl.game.graphics.FrameBuffer;
 import jp.ac.titech.itpro.sdl.game.GLRenderer;
@@ -49,8 +50,8 @@ public class Stage {
     private int height = 10;
     private int[] mapdata = {
             0, 1, 1, 1, 1, 1, 1, 1, 0, 0,
-            0, 2, 0, 0, 0, 0, 0, 1, 0, 0,
-            0, 6, 2, 2, 1, 2, 0, 1, 0, 0,
+            0, 6, 0, 0, 0, 0, 0, 1, 0, 0,
+            0, 7, 2, 2, 1, 2, 0, 1, 0, 0,
             0, 4, 0, 0, 0, 2, 0, 1, 0, 0,
             0, 0, 1, 2, 2, 2, 0, 1, 0, 0,
             3, 0, 0, 0, 0, 0, 0, 1, 0, 0,
@@ -83,12 +84,13 @@ public class Stage {
         map = new StageMap(width, height);
         for(int y = 0; y < height; y++){
             for (int x = 0; x < width; x++){
+                Vector2 position = new Vector2(x * 16, y * 16);
                 switch(mapdata[y * width + x]) {
                     case 0:
-                        map.set(x, y, new Floor(this, new Vector2(x * 16, y * 16)));
+                        map.set(x, y, new Floor(this, position));
                         break;
                     case 1:
-                        Wall wall = new Wall(this, new Vector2(x * 16, y * 16));
+                        Wall wall = new Wall(this, position);
                         SpriteComponent sprite = wall.getComponent("jp.ac.titech.itpro.sdl.game.component.SpriteComponent");
                         if(y < height - 1 && mapdata[(y + 1) * width + x] == 1){
                             sprite.controller.setCurrentAnimation("blank");
@@ -100,21 +102,24 @@ public class Stage {
                         map.set(x, y, wall);
                         break;
                     case 2:
-                        map.set(x, y, new BrightWall(this, new Vector2(x * 16, y * 16)));
+                        map.set(x, y, new BrightWall(this, position));
                         break;
                     case 3:
-                        map.set(x, y, new Switch(this, new Vector2(x * 16, y * 16), true,0));
-                        map.set(x, y, new Floor(this, new Vector2(x * 16, y * 16)));
+                        map.set(x, y, new Switch(this, position, true,0));
+                        map.set(x, y, new Floor(this, position));
                         break;
                     case 4:
-                        map.set(x, y, new VanishingWall(this, new Vector2(x * 16, y * 16), new int[]{0}, 0, 1));
+                        map.set(x, y, new VanishingWall(this, position, new int[]{0}, 0, 1));
                         break;
                     case 5:
-                        map.set(x, y, new MovableBox( new Vector2(x * 16, y * 16), this));
-                        map.set(x, y, new Floor(this, new Vector2(x * 16, y * 16)));
+                        map.set(x, y, new MovableBox( position, this));
+                        map.set(x, y, new Floor(this, position));
                         break;
                     case 6:
-                        map.set(x, y, new SolarPanel( this, new Vector2(x * 16, y * 16), 0));
+                        map.set(x, y, new SolarPanel( this, position, 0));
+                        break;
+                    case 7:
+                        map.set(x, y, new PowerWay(this, position, 0, PowerWay.Direction.UP_DOWN));
                         break;
                 }
             }
@@ -176,10 +181,10 @@ public class Stage {
         // 状態変化によるコールバック呼び出し
         // 明るさの変化
         float brightRatio = MainActivity.instance.getBrightness() / MainActivity.instance.getInitialBrightness();
-        if(brightRatio > 0.7 && !isBright){
+        if(brightRatio > 0.8 && !isBright){
             isBright = true;
             setBrightness(true);
-        }else if(brightRatio < 0.3 && isBright){
+        }else if(brightRatio < 0.6 && isBright){
             isBright = false;
             setBrightness(false);
         }
@@ -204,9 +209,6 @@ public class Stage {
                 ColliderComponent collidable1 = collidables.get(i);
                 ColliderComponent collidable2 = collidables.get(j);
                 if(collidable1.on(collidable2)){
-                    // 衝突解消前の値を渡す
-                    collidable1.onCollide(collidable2);
-                    collidable2.onCollide(collidable1);
                     // 両方共実態を持っているなら衝突解消を行う
                     if(!(collidable1.isTrigger || collidable2.isTrigger)){
                         collidable1.resolveCollision(collidable2);
@@ -219,6 +221,9 @@ public class Stage {
                             collidable2.prevCollided.add(collidable1);
                         }
                     }
+                    // 衝突解消後の値を渡す
+                    collidable1.onCollide(collidable2);
+                    collidable2.onCollide(collidable1);
                 }else if((collidable1.isTrigger || collidable2.isTrigger) && collidable1.prevCollided.contains(collidable2)){
                     // どっちかがトリガーで前回衝突していたら
                     collidable1.exitCollide(collidable2);
