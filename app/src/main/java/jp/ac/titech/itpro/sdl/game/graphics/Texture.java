@@ -14,18 +14,9 @@ public class Texture {
     public final int height;
     private int[] texture;
 
-    private boolean isPowerOf2(int v) {
-        for(int i = 1; i!=0; i<<=1) if(i>=v)return true;
-        return false;
-    }
-
-
-    public Texture(Bitmap bitmap) throws Exception {
+    public Texture(Bitmap bitmap){
         this.width = bitmap.getWidth();
         this.height = bitmap.getHeight();
-        if(!(isPowerOf2(this.width) && isPowerOf2(this.height))){
-            throw new Exception();
-        }
         texture = new int[1];
         GLES20.glGenTextures(1, texture, 0);
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
@@ -42,9 +33,6 @@ public class Texture {
     public Texture(int width, int height) throws Exception {
         this.width = width;
         this.height = height;
-        if(!(isPowerOf2(this.width) && isPowerOf2(this.height))){
-            throw new Exception();
-        }
         texture = new int[1];
         GLES20.glGenTextures(1, texture, 0);
         // TODO:↓これ1回でいい

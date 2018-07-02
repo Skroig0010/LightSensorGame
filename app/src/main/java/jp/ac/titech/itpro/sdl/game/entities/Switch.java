@@ -18,11 +18,11 @@ public class Switch extends Entity {
     public Switch(final Stage stage, Vector2 position, boolean canRelease, final int id) {
         super(stage);
         TransformComponent transform = new TransformComponent(position, this);
-        SpriteComponent sprite = new SpriteComponent(R.drawable.wall, new Rect(0, 0, 16, 16), this);
+        SpriteComponent sprite = new SpriteComponent(R.drawable.button, new Rect(0, 0, 16, 16), this);
         final SwitchParameterComponent param = new SwitchParameterComponent(canRelease, id, this);
         addComponent(transform);
         addComponent(sprite);
-        addComponent(new SimpleRenderableComponent(transform, sprite, RenderingLayers.LayerType.BACK_GROUND, this));
+        addComponent(new SimpleRenderableComponent(transform, sprite, RenderingLayers.LayerType.CHARACTER_UNDER, this));
         addComponent(param);
         addComponent(new ColliderComponent(new Vector2(16,16), this){
 

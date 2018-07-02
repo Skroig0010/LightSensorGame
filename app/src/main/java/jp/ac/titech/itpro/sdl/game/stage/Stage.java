@@ -41,7 +41,7 @@ public class Stage {
     private List<MessageReceiverComponent> receivers = new ArrayList<>();
     private List<MessageReceiverComponent> notified = new ArrayList<>();
     private Player player;
-    private StageMap map;
+    private StageMap map;// 使ってない
 
     private int width = 10;
     private int height = 10;
@@ -93,12 +93,14 @@ public class Stage {
                         break;
                     case 3:
                         map.set(x, y, new Switch(this, new Vector2(x * 16, y * 16), true,0));
+                        map.set(x, y, new Floor(this, new Vector2(x * 16, y * 16)));
                         break;
                     case 4:
                         map.set(x, y, new VanishingWall(this, new Vector2(x * 16, y * 16), new int[]{0}, 0, 1));
                         break;
                     case 5:
                         map.set(x, y, new MovableBox( new Vector2(x * 16, y * 16), this));
+                        map.set(x, y, new Floor(this, new Vector2(x * 16, y * 16)));
                         break;
                     case 6:
                         map.set(x, y, new SolarPanel( this, new Vector2(x * 16, y * 16), 0));
@@ -251,7 +253,9 @@ public class Stage {
         lSprite.setLightValue(1f);
         lSprite.setIsBright(false);
         renderLayer(lSprite, RenderingLayers.LayerType.BACK_GROUND);
+        renderLayer(lSprite, RenderingLayers.LayerType.CHARACTER_UNDER);
         renderLayer(lSprite, RenderingLayers.LayerType.CHARACTER);
+        renderLayer(lSprite, RenderingLayers.LayerType.CHARACTER_OVER);
         renderLayer(lSprite, RenderingLayers.LayerType.FORE_GROUND);
 
         // ぼかして描画
@@ -278,7 +282,9 @@ public class Stage {
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
         // レイヤーの描画
         renderLayer(sprite, RenderingLayers.LayerType.BACK_GROUND);
+        renderLayer(sprite, RenderingLayers.LayerType.CHARACTER_UNDER);
         renderLayer(sprite, RenderingLayers.LayerType.CHARACTER);
+        renderLayer(sprite, RenderingLayers.LayerType.CHARACTER_OVER);
         renderLayer(sprite, RenderingLayers.LayerType.FORE_GROUND);
         GLES20.glBlendFunc(GLES20.GL_ZERO, GLES20.GL_SRC_COLOR);
         // Uniformを渡す

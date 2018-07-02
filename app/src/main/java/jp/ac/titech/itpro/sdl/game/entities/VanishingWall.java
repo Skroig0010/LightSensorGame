@@ -17,7 +17,7 @@ public class VanishingWall extends Entity {
     public VanishingWall(Stage stage, Vector2 position, int[] switchIds, int powerId, int nSwitchRequired) {
         super(stage);
         TransformComponent transform = new TransformComponent(position, this);
-        SpriteComponent sprite = new SpriteComponent(R.drawable.wall, new Rect(0, 0, 16, 16), this);
+        SpriteComponent sprite = new SpriteComponent(R.drawable.vanishingwall, new Rect(0, 0, 16, 16), this);
         addComponent(transform);
         final ColliderComponent collider = new ColliderComponent(new Vector2(16,16), false, 0, this);
         final WallParameterComponent param = new WallParameterComponent(switchIds, nSwitchRequired, powerId, this);

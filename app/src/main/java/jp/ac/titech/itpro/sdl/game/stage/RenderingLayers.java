@@ -10,7 +10,9 @@ import jp.ac.titech.itpro.sdl.game.component.IRenderableComponent;
 public class RenderingLayers {
     public enum LayerType{
         BACK_GROUND,
+        CHARACTER_UNDER,
         CHARACTER,
+        CHARACTER_OVER,
         FORE_GROUND
     }
     private Map<LayerType, List<IRenderableComponent>> layers = new HashMap<LayerType, List<IRenderableComponent>>();

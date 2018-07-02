@@ -15,11 +15,11 @@ public class MovableBox extends Entity {
     public MovableBox(Vector2 position, Stage stage) {
         super(stage);
         TransformComponent transform = new TransformComponent(position, this);
-        SpriteComponent sprite = new SpriteComponent(R.drawable.wall, new Rect(0, 0, 16, 16), this);
+        SpriteComponent sprite = new SpriteComponent(R.drawable.movablebox, new Rect(0, 0, 16, 16), this);
         addComponent(transform);
         addComponent(sprite);
         final ColliderComponent collider = new ColliderComponent(new Vector2(16,16), false, 1, this);
-        addComponent(new SimpleRenderableComponent(transform, sprite, RenderingLayers.LayerType.FORE_GROUND, this));
+        addComponent(new SimpleRenderableComponent(transform, sprite, RenderingLayers.LayerType.CHARACTER, this));
         addComponent(collider);
     }
 }

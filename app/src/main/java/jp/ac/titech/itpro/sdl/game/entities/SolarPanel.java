@@ -17,7 +17,7 @@ public class SolarPanel extends Entity {
     public SolarPanel(final Stage stage, Vector2 position, int id) {
         super(stage);
         TransformComponent transform = new TransformComponent(position, this);
-        SpriteComponent sprite = new SpriteComponent(R.drawable.wall, new Rect(0, 0, 16, 16), this);
+        SpriteComponent sprite = new SpriteComponent(R.drawable.solar, new Rect(0, 0, 16, 16), this);
         addComponent(transform);
         addComponent(sprite);
         final SolerParameterComponent param = new SolerParameterComponent(id, this);
