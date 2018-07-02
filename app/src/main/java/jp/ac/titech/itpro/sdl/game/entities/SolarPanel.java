@@ -17,12 +17,12 @@ public class SolarPanel extends Entity {
     public SolarPanel(final Stage stage, Vector2 position, int id) {
         super(stage);
         TransformComponent transform = new TransformComponent(position, this);
-        SpriteComponent sprite = new SpriteComponent(R.drawable.solar, new Rect(0, 0, 16, 16), this);
+        SpriteComponent sprite = new SpriteComponent(R.drawable.solar,  16, 16, this);
         addComponent(transform);
         addComponent(sprite);
         final SolerParameterComponent param = new SolerParameterComponent(id, this);
         addComponent(param);
-        addComponent(new SimpleRenderableComponent(transform, sprite, RenderingLayers.LayerType.FORE_GROUND, this));
+        addComponent(new SimpleRenderableComponent(transform, sprite, RenderingLayers.LayerType.FORE_GROUND, stage, this));
         addComponent(new ColliderComponent(new Vector2(16,16), false, 0, this));
         // LightSensorComponentを付けて、コールバックでメッセージを吐く
         addComponent(new LightSensorComponent(this) {

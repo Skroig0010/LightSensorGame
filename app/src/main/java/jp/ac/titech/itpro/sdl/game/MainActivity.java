@@ -8,8 +8,6 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.widget.Toast;
 
@@ -103,16 +101,26 @@ public class MainActivity extends Activity implements SensorEventListener{
         }
     }
 
+    private boolean first = true;
+
+    private float initialBrightness;
 
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
         brightness = sensorEvent.values[0];
+        if(first){
+            initialBrightness = brightness;
+            first = false;
+        }
     }
 
     public float getBrightness(){
         return brightness;
     }
 
+    public float getInitialBrightness(){
+        return initialBrightness;
+    }
     @Override
     public void onAccuracyChanged(Sensor sensor, int i) {
         // 何もしない

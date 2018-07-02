@@ -4,10 +4,11 @@ import jp.ac.titech.itpro.sdl.game.graphics.sprite.LightSprite;
 import jp.ac.titech.itpro.sdl.game.graphics.sprite.Sprite;
 import jp.ac.titech.itpro.sdl.game.entities.Entity;
 import jp.ac.titech.itpro.sdl.game.stage.RenderingLayers;
+import jp.ac.titech.itpro.sdl.game.stage.Stage;
 
 public class BrightRenderableComponent extends SimpleRenderableComponent {
-    public BrightRenderableComponent(TransformComponent transform, SpriteComponent sprite, RenderingLayers.LayerType type, Entity parent){
-        super(transform, sprite, type, parent);
+    public BrightRenderableComponent(TransformComponent transform, SpriteComponent sprite, RenderingLayers.LayerType type, Stage stage, Entity parent){
+        super(transform, sprite, type, stage, parent);
     }
 
     @Override

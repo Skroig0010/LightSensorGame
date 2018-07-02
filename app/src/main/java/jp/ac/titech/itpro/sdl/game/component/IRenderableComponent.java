@@ -5,5 +5,6 @@ import jp.ac.titech.itpro.sdl.game.stage.RenderingLayers;
 
 public interface IRenderableComponent extends IComponent {
     RenderingLayers.LayerType getLayerType();
+    void setLayerType(RenderingLayers.LayerType type);
     void render(Sprite sprite);
 }

@@ -11,29 +11,27 @@ import jp.ac.titech.itpro.sdl.game.MainActivity;
 import jp.ac.titech.itpro.sdl.game.Rect;
 import jp.ac.titech.itpro.sdl.game.graphics.Texture;
 import jp.ac.titech.itpro.sdl.game.entities.Entity;
+import jp.ac.titech.itpro.sdl.game.graphics.animation.AnimationController;
 
 public class SpriteComponent implements IComponent {
-    private static Map<Integer, Texture> textures = new HashMap<Integer, Texture>();
+    private static Map<Integer, Texture> textures = new HashMap<>();
     public Rect rect;
     private Entity parent;
     private int id;
+    public final AnimationController controller = new AnimationController(this);
 
-    public SpriteComponent(int id, Rect rect, Entity parent){
+    public SpriteComponent(int id, int width, int height, Entity parent){
         this.id = id;
         if(!textures.containsKey(id)) {
             Resources res = MainActivity.instance.getResources();
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inScaled = false;
             Bitmap bmp = BitmapFactory.decodeResource(res, id, options);
-            try {
-                Texture texture = new Texture(bmp);
-                texture.setFilter(Texture.FilterType.NEAREST);
-                textures.put(id, texture);
-            } catch (Exception e) {
-                System.out.println("Bitmap size must be 2^n.");
-            }
+            Texture texture = new Texture(bmp);
+            texture.setFilter(Texture.FilterType.NEAREST);
+            textures.put(id, texture);
         }
-        this.rect = rect;
+        this.rect = new Rect(0, 0, width, height);
     }
 
     public Texture getTexture(){

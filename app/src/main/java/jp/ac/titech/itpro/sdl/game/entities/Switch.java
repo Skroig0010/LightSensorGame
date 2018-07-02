@@ -18,29 +18,41 @@ public class Switch extends Entity {
     public Switch(final Stage stage, Vector2 position, boolean canRelease, final int id) {
         super(stage);
         TransformComponent transform = new TransformComponent(position, this);
-        SpriteComponent sprite = new SpriteComponent(R.drawable.button, new Rect(0, 0, 16, 16), this);
+        final SpriteComponent sprite = new SpriteComponent(R.drawable.button,  16, 16, this);
+        sprite.controller.addAnimation(sprite.controller.new AnimationData(0), "released");
+        sprite.controller.addAnimation(sprite.controller.new AnimationData(1), "pressed");
         final SwitchParameterComponent param = new SwitchParameterComponent(canRelease, id, this);
         addComponent(transform);
         addComponent(sprite);
-        addComponent(new SimpleRenderableComponent(transform, sprite, RenderingLayers.LayerType.CHARACTER_UNDER, this));
+        addComponent(new SimpleRenderableComponent(transform, sprite, RenderingLayers.LayerType.CHARACTER_UNDER, stage, this));
         addComponent(param);
         addComponent(new ColliderComponent(new Vector2(16,16), this){
 
+            private int colliderNum = 0;
+
             @Override
             public void enterCollide(ColliderComponent other){
-                // プレイヤーに踏まれたら
-                Message msg = Message.SWITCH_PRESSED;
-                msg.setArgs(new Object[]{param.id});
-                stage.notifyAll(msg);
+                colliderNum++;
+                if(colliderNum == 1) {
+                    // プレイヤーに踏まれたら
+                    Message msg = Message.SWITCH_PRESSED;
+                    msg.setArgs(new Object[]{param.id});
+                    stage.notifyAll(msg);
+                    sprite.controller.setCurrentAnimation("pressed");
+                }
             }
 
             @Override
             public void exitCollide(ColliderComponent other){
                 // プレイヤーが押していたのが離れたら
                 if(param.canRelease){
-                    Message msg = Message.SWITCH_RELEASED;
-                    msg.setArgs(new Object[]{param.id});
-                    stage.notifyAll(msg);
+                    colliderNum--;
+                    if(colliderNum == 0) {
+                        Message msg = Message.SWITCH_RELEASED;
+                        msg.setArgs(new Object[]{param.id});
+                        stage.notifyAll(msg);
+                        sprite.controller.setCurrentAnimation("released");
+                    }
                 }
             }
         });

@@ -31,7 +31,7 @@ public class RenderingLayers {
         return layers.get(type);
     }
 
-    public void remove(LayerType type, IRenderableComponent renderableComponent){
-        layers.get(type).remove(renderableComponent);
+    public void remove(IRenderableComponent renderableComponent){
+        layers.get(renderableComponent.getLayerType()).remove(renderableComponent);
     }
 }

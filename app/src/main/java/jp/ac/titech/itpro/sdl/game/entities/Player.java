@@ -11,6 +11,7 @@ import jp.ac.titech.itpro.sdl.game.component.SimpleRenderableComponent;
 import jp.ac.titech.itpro.sdl.game.component.TransformComponent;
 import jp.ac.titech.itpro.sdl.game.component.SpriteComponent;
 import jp.ac.titech.itpro.sdl.game.component.TouchControllerComponent;
+import jp.ac.titech.itpro.sdl.game.graphics.animation.AnimationController;
 import jp.ac.titech.itpro.sdl.game.math.Vector2;
 import jp.ac.titech.itpro.sdl.game.stage.RenderingLayers;
 import jp.ac.titech.itpro.sdl.game.stage.Stage;
@@ -28,11 +29,19 @@ public class Player extends Entity{
     public Player(Stage stage){
         super(stage);
         transform = new TransformComponent(this);
-        sprite = new SpriteComponent(R.drawable.human, new Rect(0,0,16,16), this);
+        sprite = new SpriteComponent(R.drawable.human, 16,16, this);
+
+        // アニメーション設定
+        sprite.controller.addAnimation(sprite.controller.new AnimationData(0, 1, 500, true), "front");
+        sprite.controller.addAnimation(sprite.controller.new AnimationData(2, 3, 500, true), "back");
+        sprite.controller.addAnimation(sprite.controller.new AnimationData(4, 5, 500, true), "right");
+        sprite.controller.addAnimation(sprite.controller.new AnimationData(6, 7, 500, true), "left");
+        sprite.controller.setCurrentAnimation("front");
+
         touch = new TouchControllerComponent(this);
         final Entity parent = this;
         update = new NormalUpdatableComponent(this) {
-            private final int THRESHOLD_FLICK_VELOCITY = 50;
+            private final int THRESHOLD_FLICK_VELOCITY = 20;
             private Vector2 veloc = new Vector2();
             @Override
             public void update() {
@@ -52,17 +61,21 @@ public class Player extends Entity{
                 // フリック速度が閾値を超えていたら移動
                 if(len > THRESHOLD_FLICK_VELOCITY) {
                         if (rot >= Math.PI / 4 && rot < Math.PI * 3 / 4) {
-                            // 下向き
-                            veloc = new Vector2(0, 3);
-                        } else if (rot >= Math.PI * 3 / 4 && rot < Math.PI * 5 / 4) {
-                            // 左向き
-                            veloc = new Vector2(-3, 0);
-                        } else if (rot >= Math.PI * 5 / 4 && rot < Math.PI * 7 / 4) {
                             // 上向き
                             veloc = new Vector2(0, -3);
-                        } else {
+                            sprite.controller.setCurrentAnimation("back");
+                        } else if (rot >= Math.PI * 3 / 4 && rot < Math.PI * 5 / 4) {
                             // 右向き
                             veloc = new Vector2(3, 0);
+                            sprite.controller.setCurrentAnimation("right");
+                        } else if (rot >= Math.PI * 5 / 4 && rot < Math.PI * 7 / 4) {
+                            // 下向き
+                            veloc = new Vector2(0, 3);
+                            sprite.controller.setCurrentAnimation("front");
+                        } else {
+                            // 左向き
+                            veloc = new Vector2(-3, 0);
+                            sprite.controller.setCurrentAnimation("left");
                         }
                 }else{
                     // 超えてなかったら停止
@@ -71,7 +84,7 @@ public class Player extends Entity{
             }
         };
 
-        render = new SimpleRenderableComponent(transform, sprite, RenderingLayers.LayerType.CHARACTER, this);
+        render = new SimpleRenderableComponent(transform, sprite, RenderingLayers.LayerType.CHARACTER, stage, this);
         addComponent(transform);
         addComponent(sprite);
         addComponent(touch);

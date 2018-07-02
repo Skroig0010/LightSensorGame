@@ -13,9 +13,9 @@ public class Floor extends Entity {
     public Floor(Stage stage, Vector2 position){
         super(stage);
         TransformComponent transform = new TransformComponent(position, this);
-        SpriteComponent sprite = new SpriteComponent(R.drawable.floor, new Rect(0, 0, 16, 16), this);
+        SpriteComponent sprite = new SpriteComponent(R.drawable.floor,  16, 16, this);
         addComponent(transform);
         addComponent(sprite);
-        addComponent(new SimpleRenderableComponent(transform, sprite, RenderingLayers.LayerType.BACK_GROUND, this));
+        addComponent(new SimpleRenderableComponent(transform, sprite, RenderingLayers.LayerType.BACK_GROUND, stage, this));
     }
 }

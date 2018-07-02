@@ -1,15 +1,16 @@
 package jp.ac.titech.itpro.sdl.game.stage;
 
 import android.opengl.GLES20;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import jp.ac.titech.itpro.sdl.game.component.LightSensorComponent;
+import jp.ac.titech.itpro.sdl.game.component.SpriteComponent;
 import jp.ac.titech.itpro.sdl.game.entities.SolarPanel;
 import jp.ac.titech.itpro.sdl.game.graphics.FrameBuffer;
 import jp.ac.titech.itpro.sdl.game.GLRenderer;
+import jp.ac.titech.itpro.sdl.game.graphics.animation.AnimationController;
 import jp.ac.titech.itpro.sdl.game.graphics.sprite.GaussSprite;
 import jp.ac.titech.itpro.sdl.game.graphics.sprite.LightSprite;
 import jp.ac.titech.itpro.sdl.game.MainActivity;
@@ -40,6 +41,7 @@ public class Stage {
     private List<LightSensorComponent> lightSensors = new ArrayList<>();
     private List<MessageReceiverComponent> receivers = new ArrayList<>();
     private List<MessageReceiverComponent> notified = new ArrayList<>();
+    private List<AnimationController> animationControllers = new ArrayList<>();
     private Player player;
     private StageMap map;// 使ってない
 
@@ -86,7 +88,16 @@ public class Stage {
                         map.set(x, y, new Floor(this, new Vector2(x * 16, y * 16)));
                         break;
                     case 1:
-                        map.set(x, y, new Wall(this, new Vector2(x * 16, y * 16)));
+                        Wall wall = new Wall(this, new Vector2(x * 16, y * 16));
+                        SpriteComponent sprite = wall.getComponent("jp.ac.titech.itpro.sdl.game.component.SpriteComponent");
+                        if(y < height - 1 && mapdata[(y + 1) * width + x] == 1){
+                            sprite.controller.setCurrentAnimation("blank");
+                        }else if(y == 0 || mapdata[(y - 1) * width + x] == 1){
+                            sprite.controller.setCurrentAnimation("wall");
+                        }else{
+                            sprite.controller.setCurrentAnimation("block");
+                        }
+                        map.set(x, y, wall);
                         break;
                     case 2:
                         map.set(x, y, new BrightWall(this, new Vector2(x * 16, y * 16)));
@@ -129,6 +140,8 @@ public class Stage {
             receivers.add((MessageReceiverComponent)component);
         }else if(component instanceof LightSensorComponent){
             lightSensors.add((LightSensorComponent)component);
+        }else if(component instanceof SpriteComponent){
+            animationControllers.add(((SpriteComponent)((SpriteComponent) component)).controller);
         }
     }
 
@@ -139,7 +152,7 @@ public class Stage {
     public void removeComponent(IComponent component){
         if (component instanceof IRenderableComponent) {
             IRenderableComponent renderable = (IRenderableComponent)component;
-            layers.remove(renderable.getLayerType(), renderable);
+            layers.remove(renderable);
         }
         if(component instanceof IUpdatableComponent){
             updatables.remove(component);
@@ -162,10 +175,11 @@ public class Stage {
     public void update() {
         // 状態変化によるコールバック呼び出し
         // 明るさの変化
-        if(MainActivity.instance.getBrightness() > 300 && !isBright){
+        float brightRatio = MainActivity.instance.getBrightness() / MainActivity.instance.getInitialBrightness();
+        if(brightRatio > 0.7 && !isBright){
             isBright = true;
             setBrightness(true);
-        }else if(MainActivity.instance.getBrightness() < 100 && isBright){
+        }else if(brightRatio < 0.3 && isBright){
             isBright = false;
             setBrightness(false);
         }
@@ -236,6 +250,12 @@ public class Stage {
         notified.add(receiver);
     }
 
+    // RenderableComponentだけが使う
+    public void changeRnderingLayer(IRenderableComponent renderable, RenderingLayers.LayerType type){
+        layers.remove(renderable);
+        layers.add(type, renderable);
+    }
+
     /**
      * ステージ描画処理
      * @param sprite
@@ -243,13 +263,18 @@ public class Stage {
     public void render(Sprite sprite) {
         // Viewの座標を更新
         View.update();
+        // アニメーションの更新
+        for(AnimationController animContoroler : animationControllers){
+            animContoroler.update();
+        }
         // 白黒画像をそのまま描画
         gaussianFrameBuffer1.bindFrameBuffer();
         GLES20.glViewport(0, 0, gaussianFrameBuffer1.width, gaussianFrameBuffer1.height);
         GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1);
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
         // enumの順序が上から下とは限らないので直接指定
-        lSprite.setDarkValue(Math.min(1f,Math.max(MainActivity.instance.getBrightness() / 500, 0.5f)));
+        lSprite.setDarkValue(Math.min(1f,
+                Math.max(MainActivity.instance.getBrightness() / MainActivity.instance.getInitialBrightness(), 0.5f)));
         lSprite.setLightValue(1f);
         lSprite.setIsBright(false);
         renderLayer(lSprite, RenderingLayers.LayerType.BACK_GROUND);
