@@ -1,10 +1,13 @@
 package jp.ac.titech.itpro.sdl.game.stage;
 
 import android.opengl.GLES20;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import jp.ac.titech.itpro.sdl.game.component.LightSensorComponent;
+import jp.ac.titech.itpro.sdl.game.entities.SolarPanel;
 import jp.ac.titech.itpro.sdl.game.graphics.FrameBuffer;
 import jp.ac.titech.itpro.sdl.game.GLRenderer;
 import jp.ac.titech.itpro.sdl.game.graphics.sprite.GaussSprite;
@@ -25,7 +28,7 @@ import jp.ac.titech.itpro.sdl.game.entities.Player;
 import jp.ac.titech.itpro.sdl.game.entities.Switch;
 import jp.ac.titech.itpro.sdl.game.entities.VanishingWall;
 import jp.ac.titech.itpro.sdl.game.entities.Wall;
-import jp.ac.titech.itpro.sdl.game.graphics.sprite.UISprite;
+import jp.ac.titech.itpro.sdl.game.graphics.sprite.EmoSprite;
 import jp.ac.titech.itpro.sdl.game.math.Vector2;
 import jp.ac.titech.itpro.sdl.game.messages.Message;
 import jp.ac.titech.itpro.sdl.game.view.View;
@@ -34,6 +37,7 @@ public class Stage {
     private List<Entity> entities = new ArrayList<>();
     private List<IUpdatableComponent> updatables = new ArrayList<>();
     private List<ColliderComponent> collidables = new ArrayList<>();
+    private List<LightSensorComponent> lightSensors = new ArrayList<>();
     private List<MessageReceiverComponent> receivers = new ArrayList<>();
     private List<MessageReceiverComponent> notified = new ArrayList<>();
     private Player player;
@@ -44,7 +48,7 @@ public class Stage {
     private int[] mapdata = {
             0, 1, 1, 1, 1, 1, 1, 1, 0, 0,
             0, 2, 0, 0, 0, 0, 0, 1, 0, 0,
-            0, 1, 2, 2, 1, 2, 0, 1, 0, 0,
+            0, 6, 2, 2, 1, 2, 0, 1, 0, 0,
             0, 4, 0, 0, 0, 2, 0, 1, 0, 0,
             0, 0, 1, 2, 2, 2, 0, 1, 0, 0,
             3, 0, 0, 0, 0, 0, 0, 1, 0, 0,
@@ -57,7 +61,7 @@ public class Stage {
 
     // 描画関連
     private RenderingLayers layers = new RenderingLayers();
-    private UISprite uiSprite;
+    private EmoSprite emoSprite;
     // ぼかし用フレームバッファ
     private FrameBuffer gaussianFrameBuffer1, gaussianFrameBuffer2;
     private LightSprite lSprite;
@@ -67,7 +71,7 @@ public class Stage {
     private final int fbSize = 128;
 
     public Stage(){
-        uiSprite = new UISprite();
+        emoSprite = new EmoSprite();
         lSprite = new LightSprite();
         gaussSprite = new GaussSprite();
         player = new Player(this);
@@ -91,10 +95,14 @@ public class Stage {
                         map.set(x, y, new Switch(this, new Vector2(x * 16, y * 16), true,0));
                         break;
                     case 4:
-                        map.set(x, y, new VanishingWall(this, new Vector2(x * 16, y * 16), 0, 1));
+                        map.set(x, y, new VanishingWall(this, new Vector2(x * 16, y * 16), new int[]{0}, 0, 1));
                         break;
                     case 5:
                         map.set(x, y, new MovableBox( new Vector2(x * 16, y * 16), this));
+                        break;
+                    case 6:
+                        map.set(x, y, new SolarPanel( this, new Vector2(x * 16, y * 16), 0));
+                        break;
                 }
             }
         }
@@ -111,15 +119,14 @@ public class Stage {
         if (component instanceof IRenderableComponent) {
             IRenderableComponent renderable = (IRenderableComponent)component;
             layers.add(renderable.getLayerType(), renderable);
-        }
-        if(component instanceof IUpdatableComponent){
+        }else if(component instanceof IUpdatableComponent){
             updatables.add((IUpdatableComponent)component);
-        }
-        if(component instanceof ColliderComponent){
+        }else if(component instanceof ColliderComponent){
             collidables.add((ColliderComponent)component);
-        }
-        if(component instanceof MessageReceiverComponent){
+        }else if(component instanceof MessageReceiverComponent){
             receivers.add((MessageReceiverComponent)component);
+        }else if(component instanceof LightSensorComponent){
+            lightSensors.add((LightSensorComponent)component);
         }
     }
 
@@ -140,10 +147,26 @@ public class Stage {
         }
     }
 
+    private boolean isBright = false;
+    private void setBrightness(boolean isBright){
+        for(LightSensorComponent lightSencor : lightSensors){
+            lightSencor.onBrightnessChanged(isBright);
+        }
+    }
+
     /**
      * ステージ更新処理
      */
     public void update() {
+        // 状態変化によるコールバック呼び出し
+        // 明るさの変化
+        if(MainActivity.instance.getBrightness() > 300 && !isBright){
+            isBright = true;
+            setBrightness(true);
+        }else if(MainActivity.instance.getBrightness() < 100 && isBright){
+            isBright = false;
+            setBrightness(false);
+        }
 
         // メッセージを処理
         for(MessageReceiverComponent receiver : notified){
@@ -259,7 +282,7 @@ public class Stage {
         renderLayer(sprite, RenderingLayers.LayerType.FORE_GROUND);
         GLES20.glBlendFunc(GLES20.GL_ZERO, GLES20.GL_SRC_COLOR);
         // Uniformを渡す
-        uiSprite.render(0, 240, postFrameBuffer.getTexture(), new Rect(0, 0, fbSize, fbSize), 160, -240);
+        emoSprite.render(0, 240, postFrameBuffer.getTexture(), new Rect(0, 0, fbSize, fbSize), 160, -240);
         GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
     }
 

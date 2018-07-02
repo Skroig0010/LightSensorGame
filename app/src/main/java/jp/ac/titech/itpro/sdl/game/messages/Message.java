@@ -6,6 +6,8 @@ import java.util.List;
 public enum Message {
     SWITCH_PRESSED(null),
     SWITCH_RELEASED(null),
+    POWER_SUPPLY(null),
+    POWER_STOP(null),
     NOTHING(null);
 
     private Object[] args;

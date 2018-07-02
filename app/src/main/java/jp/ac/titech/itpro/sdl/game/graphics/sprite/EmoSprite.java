@@ -8,14 +8,14 @@ import jp.ac.titech.itpro.sdl.game.graphics.Texture;
 /**
  * Viewによらず絶対座標で描画してくれる
  */
-public class UISprite extends Sprite {
+public class EmoSprite extends Sprite {
     private int transMatrixLocation;
     private int viewportMatrixLocation;
     private int textureLocation;
     private int uvTransMatrixLocation;
 
-    public UISprite(){
-        super("main");
+    public EmoSprite(){
+        super("emo");
 
         // Uniform変数
         viewportMatrixLocation = shaderProgram.getUniformLocation("viewportMatrix");
