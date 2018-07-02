@@ -23,7 +23,7 @@ public class Button extends Entity {
         addComponent(sprite);
         addComponent(new SimpleRenderableComponent(transform, sprite, RenderingLayers.LayerType.CHARACTER_UNDER, stage, this));
         addComponent(param);
-        addComponent(new ColliderComponent(new Vector2(14,14), this){
+        addComponent(new ColliderComponent(new Vector2(2, 2), new Vector2(12,12), this){
 
             private int colliderNum = 0;
 

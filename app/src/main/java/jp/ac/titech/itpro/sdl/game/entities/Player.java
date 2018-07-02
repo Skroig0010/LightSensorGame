@@ -49,24 +49,25 @@ public class Player extends Entity{
                 double rot = Math.atan2(touch.getDirection().y, touch.getDirection().x);
                 float len = touch.getDirection().x * touch.getDirection().x + touch.getDirection().y * touch.getDirection().y;
                 // マスに沿った位置にいるなら移動を許可
-                int diffX = (int)transform.getPosition().x % 16;
-                int diffY = (int)transform.getPosition().y % 16;
+                Vector2 position = transform.getLocal();
+                int diffX = (int)position.x % 16;
+                int diffY = (int)position.y % 16;
                 if(diffX == 0 && diffY == 0) {
                     move(rot, len);
                 }
 
-                Vector2 dir = to.sub(transform.getPosition());
+                Vector2 dir = to.sub(position);
                 if(dir.lengthSquared() > 9){
-                    transform.setPosition(transform.getPosition().add(dir.normalize().scale(3)));
+                    transform.setLocal(position.add(dir.normalize().scale(3)));
                 }else{
-                    transform.setPosition(to);
+                    transform.setLocal(to);
                 }
-                View.setTargetPosition(transform.getPosition().sub(72, 112));
+                View.setTargetPosition(transform.getGlobal().sub(72, 112));
             }
 
             private void move(double rot, float len){
                 if (rot < 0) rot += 2 * Math.PI;
-                Vector2 currPos = transform.getPosition();
+                Vector2 currPos = transform.getLocal();
                 // フリック速度が閾値を超えていたら移動
                 if(len > THRESHOLD_FLICK_VELOCITY) {
                         if (rot >= Math.PI / 4 && rot < Math.PI * 3 / 4) {
@@ -102,7 +103,7 @@ public class Player extends Entity{
         collider = new ColliderComponent(new Vector2(16, 16), false, 1, this){
             @Override
             public void onCollide(ColliderComponent other){
-                View.setTargetPosition(transform.getPosition().sub(72, 112));
+                View.setTargetPosition(transform.getGlobal().sub(72, 112));
             }
         };
         addComponent(collider);

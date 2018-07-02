@@ -36,8 +36,8 @@ public class SimpleRenderableComponent implements IRenderableComponent {
     @Override
     public void render(Sprite sprite) {
         sprite.render(
-                transform.getPosition().x,
-                transform.getPosition().y,
+                transform.getGlobal().x,
+                transform.getGlobal().y,
                 this.sprite.getTexture(),
                 this.sprite.rect
         );
