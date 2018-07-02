@@ -1,9 +1,6 @@
 package jp.ac.titech.itpro.sdl.game.entities;
 
-import android.view.MotionEvent;
-
 import jp.ac.titech.itpro.sdl.game.R;
-import jp.ac.titech.itpro.sdl.game.Rect;
 import jp.ac.titech.itpro.sdl.game.component.ColliderComponent;
 import jp.ac.titech.itpro.sdl.game.component.SimpleRenderableComponent;
 import jp.ac.titech.itpro.sdl.game.component.SpriteComponent;
@@ -14,8 +11,8 @@ import jp.ac.titech.itpro.sdl.game.messages.Message;
 import jp.ac.titech.itpro.sdl.game.stage.RenderingLayers;
 import jp.ac.titech.itpro.sdl.game.stage.Stage;
 
-public class Switch extends Entity {
-    public Switch(final Stage stage, Vector2 position, boolean canRelease, final int id) {
+public class Button extends Entity {
+    public Button(final Stage stage, Vector2 position, boolean canRelease, final int id) {
         super(stage);
         TransformComponent transform = new TransformComponent(position, this);
         final SpriteComponent sprite = new SpriteComponent(R.drawable.button,  16, 16, this);
@@ -26,7 +23,7 @@ public class Switch extends Entity {
         addComponent(sprite);
         addComponent(new SimpleRenderableComponent(transform, sprite, RenderingLayers.LayerType.CHARACTER_UNDER, stage, this));
         addComponent(param);
-        addComponent(new ColliderComponent(new Vector2(16,16), this){
+        addComponent(new ColliderComponent(new Vector2(14,14), this){
 
             private int colliderNum = 0;
 
@@ -35,7 +32,7 @@ public class Switch extends Entity {
                 colliderNum++;
                 if(colliderNum == 1) {
                     // プレイヤーに踏まれたら
-                    Message msg = Message.SWITCH_PRESSED;
+                    Message msg = Message.BUTTON_PRESSED;
                     msg.setArgs(new Object[]{param.id});
                     stage.notifyAll(msg);
                     sprite.controller.setCurrentAnimation("pressed");
@@ -48,7 +45,7 @@ public class Switch extends Entity {
                 if(param.canRelease){
                     colliderNum--;
                     if(colliderNum == 0) {
-                        Message msg = Message.SWITCH_RELEASED;
+                        Message msg = Message.BUTTON_RELEASED;
                         msg.setArgs(new Object[]{param.id});
                         stage.notifyAll(msg);
                         sprite.controller.setCurrentAnimation("released");

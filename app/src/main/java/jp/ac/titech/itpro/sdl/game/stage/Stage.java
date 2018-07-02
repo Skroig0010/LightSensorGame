@@ -27,7 +27,7 @@ import jp.ac.titech.itpro.sdl.game.entities.Floor;
 import jp.ac.titech.itpro.sdl.game.entities.Entity;
 import jp.ac.titech.itpro.sdl.game.entities.MovableBox;
 import jp.ac.titech.itpro.sdl.game.entities.Player;
-import jp.ac.titech.itpro.sdl.game.entities.Switch;
+import jp.ac.titech.itpro.sdl.game.entities.Button;
 import jp.ac.titech.itpro.sdl.game.entities.VanishingWall;
 import jp.ac.titech.itpro.sdl.game.entities.Wall;
 import jp.ac.titech.itpro.sdl.game.graphics.sprite.EmoSprite;
@@ -92,7 +92,7 @@ public class Stage {
                     case 1:
                         Wall wall = new Wall(this, position);
                         SpriteComponent sprite = wall.getComponent("jp.ac.titech.itpro.sdl.game.component.SpriteComponent");
-                        if(y < height - 1 && mapdata[(y + 1) * width + x] == 1){
+                        if(y == height - 1 || mapdata[(y + 1) * width + x] == 1){
                             sprite.controller.setCurrentAnimation("blank");
                         }else if(y == 0 || mapdata[(y - 1) * width + x] == 1){
                             sprite.controller.setCurrentAnimation("wall");
@@ -105,7 +105,7 @@ public class Stage {
                         map.set(x, y, new BrightWall(this, position));
                         break;
                     case 3:
-                        map.set(x, y, new Switch(this, position, true,0));
+                        map.set(x, y, new Button(this, position, true,0));
                         map.set(x, y, new Floor(this, position));
                         break;
                     case 4:

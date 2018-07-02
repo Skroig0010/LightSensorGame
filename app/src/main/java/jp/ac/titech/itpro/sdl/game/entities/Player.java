@@ -42,44 +42,53 @@ public class Player extends Entity{
         final Entity parent = this;
         update = new NormalUpdatableComponent(this) {
             private final int THRESHOLD_FLICK_VELOCITY = 20;
-            private Vector2 veloc = new Vector2();
+            private Vector2 to = new Vector2();
             @Override
             public void update() {
                 // 極座標系
                 double rot = Math.atan2(touch.getDirection().y, touch.getDirection().x);
                 float len = touch.getDirection().x * touch.getDirection().x + touch.getDirection().y * touch.getDirection().y;
-                move(rot, len);
                 // マスに沿った位置にいるなら移動を許可
-                // if((int)transform.getPosition().x % 16 == 0 && (int)transform.getPosition().y % 16 == 0){
-                // }
-                transform.setPosition(transform.getPosition().add(veloc));
+                int diffX = (int)transform.getPosition().x % 16;
+                int diffY = (int)transform.getPosition().y % 16;
+                if(diffX == 0 && diffY == 0) {
+                    move(rot, len);
+                }
+
+                Vector2 dir = to.sub(transform.getPosition());
+                if(dir.lengthSquared() > 9){
+                    transform.setPosition(transform.getPosition().add(dir.normalize().scale(3)));
+                }else{
+                    transform.setPosition(to);
+                }
                 View.setTargetPosition(transform.getPosition().sub(72, 112));
             }
 
             private void move(double rot, float len){
                 if (rot < 0) rot += 2 * Math.PI;
+                Vector2 currPos = transform.getPosition();
                 // フリック速度が閾値を超えていたら移動
                 if(len > THRESHOLD_FLICK_VELOCITY) {
                         if (rot >= Math.PI / 4 && rot < Math.PI * 3 / 4) {
                             // 上向き
-                            veloc = new Vector2(0, -3);
+                            to = new Vector2((int)(currPos.x + 8) / 16 * 16, (int)(currPos.y + 8 - 16) / 16 * 16);
                             sprite.controller.setCurrentAnimation("back");
                         } else if (rot >= Math.PI * 3 / 4 && rot < Math.PI * 5 / 4) {
                             // 右向き
-                            veloc = new Vector2(3, 0);
+                            to = new Vector2((int)(currPos.x + 8 + 16) / 16 * 16, (int)(currPos.y + 8) / 16 * 16);
                             sprite.controller.setCurrentAnimation("right");
                         } else if (rot >= Math.PI * 5 / 4 && rot < Math.PI * 7 / 4) {
                             // 下向き
-                            veloc = new Vector2(0, 3);
+                            to = new Vector2((int)(currPos.x + 8) / 16 * 16, (int)(currPos.y + 8 + 16) / 16 * 16);
                             sprite.controller.setCurrentAnimation("front");
                         } else {
                             // 左向き
-                            veloc = new Vector2(-3, 0);
+                            to = new Vector2((int)(currPos.x + 8 - 16) / 16 * 16, (int)(currPos.y + 8) / 16 * 16);
                             sprite.controller.setCurrentAnimation("left");
                         }
                 }else{
                     // 超えてなかったら停止
-                    veloc = new Vector2();
+                    to = currPos;
                 }
             }
         };

@@ -1,7 +1,6 @@
 package jp.ac.titech.itpro.sdl.game.entities;
 
 import jp.ac.titech.itpro.sdl.game.R;
-import jp.ac.titech.itpro.sdl.game.Rect;
 import jp.ac.titech.itpro.sdl.game.component.ColliderComponent;
 import jp.ac.titech.itpro.sdl.game.component.IRenderableComponent;
 import jp.ac.titech.itpro.sdl.game.component.MessageReceiverComponent;
@@ -62,7 +61,7 @@ public class VanishingWall extends Entity {
             protected void processMessage(Message msg){
                 int msgID;
                 switch (msg){
-                    case SWITCH_PRESSED:
+                    case BUTTON_PRESSED:
                         msgID = (int)msg.getArgs()[0];
                         for(int id : param.switchIds) {
                             if (msgID == id) {
@@ -71,7 +70,7 @@ public class VanishingWall extends Entity {
                             }
                         }
                         break;
-                    case SWITCH_RELEASED:
+                    case BUTTON_RELEASED:
                         msgID = (int)msg.getArgs()[0];
                         for(int id : param.switchIds) {
                             if (msgID == id) {
