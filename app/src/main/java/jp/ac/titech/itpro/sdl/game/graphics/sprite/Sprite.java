@@ -5,7 +5,7 @@ import android.opengl.Matrix;
 
 import java.nio.FloatBuffer;
 
-import jp.ac.titech.itpro.sdl.game.BufferUtil;
+import jp.ac.titech.itpro.sdl.game.util.BufferUtil;
 import jp.ac.titech.itpro.sdl.game.Rect;
 import jp.ac.titech.itpro.sdl.game.graphics.Shader;
 import jp.ac.titech.itpro.sdl.game.graphics.Texture;

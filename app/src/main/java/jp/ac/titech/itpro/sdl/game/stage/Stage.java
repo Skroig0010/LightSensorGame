@@ -1,9 +1,12 @@
 package jp.ac.titech.itpro.sdl.game.stage;
 
 import android.opengl.GLES20;
+import android.util.Log;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 
 import jp.ac.titech.itpro.sdl.game.component.LightSensorComponent;
 import jp.ac.titech.itpro.sdl.game.component.SpriteComponent;
@@ -34,33 +37,23 @@ import jp.ac.titech.itpro.sdl.game.entities.Wall;
 import jp.ac.titech.itpro.sdl.game.graphics.sprite.EmoSprite;
 import jp.ac.titech.itpro.sdl.game.math.Vector2;
 import jp.ac.titech.itpro.sdl.game.messages.Message;
+import jp.ac.titech.itpro.sdl.game.util.CSVReader;
 import jp.ac.titech.itpro.sdl.game.view.View;
 
 public class Stage {
-    private List<Entity> entities = new ArrayList<>();
     private List<IUpdatableComponent> updatables = new ArrayList<>();
     private List<ColliderComponent> collidables = new ArrayList<>();
     private List<LightSensorComponent> lightSensors = new ArrayList<>();
     private List<MessageReceiverComponent> receivers = new ArrayList<>();
     private List<MessageReceiverComponent> notified = new ArrayList<>();
     private List<AnimationController> animationControllers = new ArrayList<>();
-    private Player player;
     private StageMap map;// 使ってない
 
     private int width = 10;
     private int height = 10;
-    private int[] mapdata = {
-            0, 1, 1, 1, 1, 1, 1, 1, 0, 0,
-            0, 6, 7, 8, 9, 0, 0, 1, 0, 0,
-            0, 7, 2, 2, 1, 2, 0, 1, 0, 0,
-            0, 4, 0, 0, 0, 2, 0, 1, 0, 0,
-            0, 0, 1, 2, 2, 2, 0, 1, 0, 0,
-            3, 0, 0, 0, 0, 0, 0, 1, 0, 0,
-            5, 0, 1, 2, 2, 2, 2, 1, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 1, 0, 1, 0, 1, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-    };
+    private int[][] mapdata;
+    private int[][] powerIdMap;
+    private int powerId = 1;
 
 
     // 描画関連
@@ -78,24 +71,48 @@ public class Stage {
         emoSprite = new EmoSprite();
         lSprite = new LightSprite();
         gaussSprite = new GaussSprite();
-        player = new Player(this);
-        entities.add(player);
 
         // マップの設定
+        mapdata = CSVReader.read("map.csv");
+        powerIdMap = new int[mapdata.length][mapdata[0].length];
         map = new StageMap(width, height);
+
+        // powerIdMapの作成
+        // ソーラーで探索
+        for(int y = 0; y < height; y++){
+            for (int x = 0; x < width; x++) {
+                Vector2 position = new Vector2(x * 16, y * 16);
+                if(mapdata[y][x] == 7) {
+                    setPowerId(x, y);
+                }
+            }
+        }
+
+        // バッテリーで探索
+        for(int y = 0; y < height; y++){
+            for (int x = 0; x < width; x++) {
+                Vector2 position = new Vector2(x * 16, y * 16);
+                if(mapdata[y][x] == 9) {
+                    setPowerId(x, y);
+                }
+            }
+        }
+        // マップはおそらく正しくできたのでその後何のエラーが起きているか探す
+
         for(int y = 0; y < height; y++){
             for (int x = 0; x < width; x++){
                 Vector2 position = new Vector2(x * 16, y * 16);
-                switch(mapdata[y * width + x]) {
+                int id1, id2;
+                switch(mapdata[y][x]) {
                     case 0:
                         map.set(x, y, new Floor(this, position));
                         break;
                     case 1:
                         Wall wall = new Wall(this, position);
                         SpriteComponent sprite = wall.getComponent("jp.ac.titech.itpro.sdl.game.component.SpriteComponent");
-                        if(y == height - 1 || mapdata[(y + 1) * width + x] == 1){
+                        if(y == height - 1 || mapdata[(y + 1)][x] == 1){
                             sprite.controller.setCurrentAnimation("blank");
-                        }else if(y == 0 || mapdata[(y - 1) * width + x] == 1){
+                        }else if(y == 0 || mapdata[(y - 1)][x] == 1){
                             sprite.controller.setCurrentAnimation("wall");
                         }else{
                             sprite.controller.setCurrentAnimation("block");
@@ -103,30 +120,47 @@ public class Stage {
                         map.set(x, y, wall);
                         break;
                     case 2:
-                        map.set(x, y, new BrightWall(this, position));
+                        map.set(x, y, new Floor(this, position));
+                        new Player(this);
                         break;
                     case 3:
-                        map.set(x, y, new Button(this, position, true,0));
-                        map.set(x, y, new Floor(this, position));
+                        map.set(x, y, new BrightWall(this, position));
                         break;
                     case 4:
-                        map.set(x, y, new VanishingWall(this, position, new int[]{0}, 0, 1));
+                        new Button(this, position, true,0);
+                        map.set(x, y, new Floor(this, position));
                         break;
                     case 5:
+                        id1 = getPowerId(x, y, false);
+                        map.set(x, y, new VanishingWall(this, position, new int[]{0}, id1, 1));
+                        break;
+                    case 6:
                         map.set(x, y, new MovableBox( position, this));
                         map.set(x, y, new Floor(this, position));
                         break;
-                    case 6:
-                        map.set(x, y, new SolarPanel( this, position, 0));
-                        break;
                     case 7:
-                        map.set(x, y, new PowerWay(this, position, 0, PowerWay.Direction.UP_DOWN));
+                        id1 = getPowerId(x, y, true);
+                        map.set(x, y, new SolarPanel( this, position, id1));
                         break;
                     case 8:
-                        map.set(x, y, new Battery(this, position, 0, 1));
+                        id1 = getPowerId(x, y, true);
+                        int up = mapdata[y - 1][x];
+                        int down = mapdata[y + 1][x];
+                        int left = mapdata[y][x - 1];
+                        int right = mapdata[y][x + 1];
+                        PowerWay.Direction dir = PowerWay.Direction.UP_DOWN;
+                        if(relatedOnPower(up) && relatedOnPower(down))dir = PowerWay.Direction.UP_DOWN;
+                        if(relatedOnPower(left) && relatedOnPower(right))dir = PowerWay.Direction.LEFT_RIGHT;
+                        if(relatedOnPower(up) && relatedOnPower(left))dir = PowerWay.Direction.UP_LEFT;
+                        if(relatedOnPower(up) && relatedOnPower(right))dir = PowerWay.Direction.UP_RIGHT;
+                        if(relatedOnPower(down) && relatedOnPower(left))dir = PowerWay.Direction.DOWN_LEFT;
+                        if(relatedOnPower(down) && relatedOnPower(right))dir = PowerWay.Direction.DOWN_RIGHT;
+                        map.set(x, y, new PowerWay(this, position, id1, dir));
                         break;
                     case 9:
-                        map.set(x, y, new PowerWay(this, position, 1, PowerWay.Direction.UP_DOWN));
+                        id1 = getPowerId(x, y, true);
+                        id2 = getPowerId(x, y, false);
+                        map.set(x, y, new Battery(this, position, id2, id1));
                         break;
                 }
             }
@@ -134,6 +168,79 @@ public class Stage {
         gaussianFrameBuffer1 = new FrameBuffer(fbSize, fbSize);
         gaussianFrameBuffer2 = new FrameBuffer(fbSize, fbSize);
         postFrameBuffer = new FrameBuffer(fbSize, fbSize);
+    }
+
+    private boolean relatedOnPower(int id){
+        return id == 5 || id == 7 || id == 8 || id == 9;
+    }
+
+    private int getPowerId(int x, int y, boolean isOutput){
+        if(x < 0 || x >= powerIdMap[0].length || y < 0 || y >= powerIdMap.length)return 0;
+        if(isOutput){
+            if(powerIdMap[y][x] != 0){
+                // すでに番号が決まっているはずなのでそれを返す
+                return powerIdMap[y][x];
+            }else{
+                Log.e("Unexpected Error", "先にpowerIdMapを作ってください");
+                return 0;
+            }
+        }else{
+            // 周囲にpowerIdがあるならそれを返す
+            int currId = powerIdMap[y][x];
+            if(x > 0 && powerIdMap[y][x - 1] != 0 && powerIdMap[y][x - 1] != currId)return powerIdMap[y][x - 1];
+            if(x < powerIdMap[0].length - 1 && powerIdMap[y][x + 1] != 0 && powerIdMap[y][x + 1] != currId)return powerIdMap[y][x + 1];
+            if(y > 0 && powerIdMap[y - 1][x] != 0 && powerIdMap[y - 1][x] != currId)return powerIdMap[y - 1][x];
+            if(y < powerIdMap.length - 1 && powerIdMap[y + 1][x] != 0 && powerIdMap[y + 1][x] != currId)return powerIdMap[y + 1][x];
+            // 周囲にpowerIdが無いならID付けつつ電源探索
+            Log.e("Unexpected Error", "先にpowerIdMapを作ってください");
+            return 0;
+        }
+    }
+
+    private void setPowerId(int x, int y){
+        if(powerIdMap[y][x] != 0){
+            return;
+        }else{
+            // 番号が決まっていないなら道もID付けつつ探索する
+            Queue<int[]> placeQueue = new ArrayDeque();
+            placeQueue.add(new int[]{x, y});
+            while(placeQueue.size() > 0) {
+                int[] place = placeQueue.remove();
+                powerIdMap[place[1]][place[0]] = powerId;
+                if (x > 0) {
+                    if(isUnreachedPowerWay(place[0] - 1, place[1]))placeQueue.add(new int[]{place[0] - 1, place[1]});
+                }
+                if (x < powerIdMap[0].length - 1) {
+                    if(isUnreachedPowerWay(place[0] + 1, place[1]))placeQueue.add(new int[]{place[0] + 1, place[1]});
+                }
+                if (y > 0) {
+                    if(isUnreachedPowerWay(place[0], place[1] - 1))placeQueue.add(new int[]{place[0], place[1] - 1});
+                }
+                if (y < powerIdMap.length - 1) {
+                    if(isUnreachedPowerWay(place[0], place[1] + 1))placeQueue.add(new int[]{place[0], place[1] + 1});
+                }
+            }
+            // 最後にidをインクリメント
+            powerId++;
+        }
+    }
+
+    // バッテリーが合った場合powerIdMapに書き込むという副作用あり
+    private boolean isUnreachedPowerWay(int x, int y){
+        int mapId = mapdata[y][x];
+        if (mapId == 7 || mapId == 8) {
+            // ソーラーパネルか電源の道なら探索を続ける
+            if (powerIdMap[y][x] == 0){
+                return true;
+            }else if(powerIdMap[y][x] == powerId) {
+                // すでに探索済みなので何もしない
+            }else{
+                // 探索したらID付いているはずなのについてないのでおかしい
+                // 唯一バッテリーの可能性がある
+                if(mapId != 9)Log.e("マップ構成エラー", "位置(" + x + ", " + y + ")近辺に不具合あり");
+            }
+        }
+        return false;
     }
 
     /**

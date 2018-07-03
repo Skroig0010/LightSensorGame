@@ -63,6 +63,7 @@ public class Shader {
                 source += str;
                 str = br.readLine();
             }
+            br.close();
             return source;
         }catch (IOException e){
             Toast.makeText(MainActivity.instance, filename + "が見つかりません", Toast.LENGTH_LONG);

@@ -35,6 +35,7 @@ public class PowerWay extends Entity {
         final SpriteComponent sprite = new SpriteComponent(R.drawable.powerway,  16, 16, this);
         sprite.controller.addAnimation(sprite.controller.new AnimationData(type.getFrameId(), type.getFrameId() + 3, 100, true), "on");
         sprite.controller.addAnimation(sprite.controller.new AnimationData(type.getFrameId() + 4), "off");
+        sprite.controller.setCurrentAnimation("on");
         addComponent(transform);
         addComponent(sprite);
         addComponent(new SimpleRenderableComponent(transform, sprite, RenderingLayers.LayerType.BACK_GROUND, stage, this));

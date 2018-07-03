@@ -1,4 +1,4 @@
-package jp.ac.titech.itpro.sdl.game;
+package jp.ac.titech.itpro.sdl.game.util;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
