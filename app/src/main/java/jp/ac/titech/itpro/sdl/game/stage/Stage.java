@@ -7,6 +7,7 @@ import java.util.List;
 
 import jp.ac.titech.itpro.sdl.game.component.LightSensorComponent;
 import jp.ac.titech.itpro.sdl.game.component.SpriteComponent;
+import jp.ac.titech.itpro.sdl.game.entities.Battery;
 import jp.ac.titech.itpro.sdl.game.entities.PowerWay;
 import jp.ac.titech.itpro.sdl.game.entities.SolarPanel;
 import jp.ac.titech.itpro.sdl.game.graphics.FrameBuffer;
@@ -50,7 +51,7 @@ public class Stage {
     private int height = 10;
     private int[] mapdata = {
             0, 1, 1, 1, 1, 1, 1, 1, 0, 0,
-            0, 6, 0, 0, 0, 0, 0, 1, 0, 0,
+            0, 6, 7, 8, 9, 0, 0, 1, 0, 0,
             0, 7, 2, 2, 1, 2, 0, 1, 0, 0,
             0, 4, 0, 0, 0, 2, 0, 1, 0, 0,
             0, 0, 1, 2, 2, 2, 0, 1, 0, 0,
@@ -121,6 +122,12 @@ public class Stage {
                     case 7:
                         map.set(x, y, new PowerWay(this, position, 0, PowerWay.Direction.UP_DOWN));
                         break;
+                    case 8:
+                        map.set(x, y, new Battery(this, position, 0, 1));
+                        break;
+                    case 9:
+                        map.set(x, y, new PowerWay(this, position, 1, PowerWay.Direction.UP_DOWN));
+                        break;
                 }
             }
         }
@@ -190,10 +197,14 @@ public class Stage {
         }
 
         // メッセージを処理
+        isProcessingNotified = true;
         for(MessageReceiverComponent receiver : notified){
             receiver.processMessages();
         }
+        isProcessingNotified = false;
         notified.clear();
+        notified.addAll(delayNotified);
+        delayNotified.clear();
 
         // 全UpdatableComponentの更新
         for (IUpdatableComponent updatable:updatables ) {
@@ -235,6 +246,10 @@ public class Stage {
         }
     }
 
+    // notified処理中はnotifyできない。1F遅らせる
+    private boolean isProcessingNotified = false;
+    private List<MessageReceiverComponent> delayNotified = new ArrayList<>();
+
     // 全体通知
     public void notifyAll(Message message){
         // 全てのMessageQueueComponentに通知
@@ -252,7 +267,11 @@ public class Stage {
 
     // MessageQueueComponentだけが使う
     public void setNotified(MessageReceiverComponent receiver){
-        notified.add(receiver);
+        if(isProcessingNotified){
+            delayNotified.add(receiver);
+        }else {
+            notified.add(receiver);
+        }
     }
 
     // RenderableComponentだけが使う

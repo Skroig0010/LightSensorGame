@@ -110,7 +110,7 @@ public class MainActivity extends Activity implements SensorEventListener{
         brightness = sensorEvent.values[0];
         if(first){
             initialBrightness = brightness;
-            if(initialBrightness == 0)initialBrightness = 1;
+            if(initialBrightness < 0.5f)initialBrightness = 0.5f;
             first = false;
         }
     }
