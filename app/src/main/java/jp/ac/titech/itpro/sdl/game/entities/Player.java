@@ -26,9 +26,9 @@ public class Player extends Entity{
     IRenderableComponent render;
     ColliderComponent collider;
 
-    public Player(Stage stage){
+    public Player(Stage stage, Vector2 position){
         super(stage);
-        transform = new TransformComponent(this);
+        transform = new TransformComponent(position,this);
         sprite = new SpriteComponent(R.drawable.human, 16,16, this);
 
         // アニメーション設定
@@ -41,7 +41,7 @@ public class Player extends Entity{
         touch = new TouchControllerComponent(this);
         final Entity parent = this;
         update = new NormalUpdatableComponent(this) {
-            private final int THRESHOLD_FLICK_VELOCITY = 20;
+            private final int THRESHOLD_FLICK_VELOCITY = 10;
             private Vector2 to = new Vector2();
             @Override
             public void update() {
@@ -50,15 +50,17 @@ public class Player extends Entity{
                 float len = touch.getDirection().x * touch.getDirection().x + touch.getDirection().y * touch.getDirection().y;
                 // マスに沿った位置にいるなら移動を許可
                 Vector2 position = transform.getLocal();
-                int diffX = (int)position.x % 16;
-                int diffY = (int)position.y % 16;
-                if(diffX == 0 && diffY == 0) {
-                    move(rot, len);
-                }
+                // int diffX = (int)position.x % 16;
+                // int diffY = (int)position.y % 16;
+                // if(diffX == 0 && diffY == 0) {
+                move(rot, len);
+                // }
 
                 Vector2 dir = to.sub(position);
-                if(dir.lengthSquared() > 9){
-                    transform.setLocal(position.add(dir.normalize().scale(3)));
+                float veloc = len / 50;
+                if(veloc > 8)veloc = 8;
+                if(dir.lengthSquared() > veloc * veloc){
+                    transform.setLocal(position.add(dir.normalize().scale(veloc)));
                 }else{
                     transform.setLocal(to);
                 }

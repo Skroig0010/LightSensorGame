@@ -32,8 +32,7 @@ public class Button extends Entity {
                 colliderNum++;
                 if(colliderNum == 1) {
                     // プレイヤーに踏まれたら
-                    Message msg = Message.BUTTON_PRESSED;
-                    msg.setArgs(new Object[]{param.id});
+                    Message msg = new Message().new BUTTON_PRESSED(new Object[]{param.id});
                     stage.notifyAll(msg);
                     sprite.controller.setCurrentAnimation("pressed");
                 }
@@ -45,8 +44,7 @@ public class Button extends Entity {
                 if(param.canRelease){
                     colliderNum--;
                     if(colliderNum == 0) {
-                        Message msg = Message.BUTTON_RELEASED;
-                        msg.setArgs(new Object[]{param.id});
+                        Message msg = new Message().new BUTTON_RELEASED(new Object[]{param.id});
                         stage.notifyAll(msg);
                         sprite.controller.setCurrentAnimation("released");
                     }

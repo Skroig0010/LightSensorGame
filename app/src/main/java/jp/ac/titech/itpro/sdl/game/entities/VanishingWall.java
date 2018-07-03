@@ -14,7 +14,7 @@ import jp.ac.titech.itpro.sdl.game.stage.RenderingLayers;
 import jp.ac.titech.itpro.sdl.game.stage.Stage;
 
 public class VanishingWall extends Entity {
-    public VanishingWall(Stage stage, Vector2 position, int[] switchIds, int powerId, int nSwitchRequired) {
+    public VanishingWall(Stage stage, Vector2 position, int[] switchIds, int powerId) {
         super(stage);
         TransformComponent transform = new TransformComponent(position, this);
         final SpriteComponent sprite = new SpriteComponent(R.drawable.vanishingwall,  16, 16, this);
@@ -24,7 +24,7 @@ public class VanishingWall extends Entity {
         sprite.controller.addAnimation(sprite.controller.new AnimationData(3), "off-dark");
         addComponent(transform);
         final ColliderComponent collider = new ColliderComponent(new Vector2(16,16), false, 0, this);
-        final WallParameterComponent param = new WallParameterComponent(switchIds, nSwitchRequired, powerId, this);
+        final WallParameterComponent param = new WallParameterComponent(switchIds, switchIds.length, powerId, this);
         addComponent(sprite);
         final IRenderableComponent renderable = new SimpleRenderableComponent(transform, sprite, RenderingLayers.LayerType.FORE_GROUND, stage, this);
         addComponent(renderable);
@@ -36,61 +36,49 @@ public class VanishingWall extends Entity {
 
             @Override
             protected void afterProcess(){
-                // 電源が供給されているときのみ変化する
-                if(powerSupplied) {
-                    // 必要数以上ボタンが押されていたら通り抜けられるようにする
-                    if (pressedSwitchNum >= param.nSwitchRequired) {
-                        collider.isTrigger = true;
-                        sprite.controller.setCurrentAnimation("off");
-                        renderable.setLayerType(RenderingLayers.LayerType.BACK_GROUND);
-                    } else {
-                        collider.isTrigger = false;
-                        renderable.setLayerType(RenderingLayers.LayerType.FORE_GROUND);
-                        sprite.controller.setCurrentAnimation("on");
-                    }
-                }else{
-                    if(collider.isTrigger){
-                        sprite.controller.setCurrentAnimation("off-dark");
-                    }else{
-                        sprite.controller.setCurrentAnimation("on-dark");
-                    }
+                // 電源が供給されている、かつ
+                // 必要数以上ボタンが押されていたら通り抜けられるようにする
+                if (powerSupplied && pressedSwitchNum >= param.nSwitchRequired) {
+                    collider.isTrigger = true;
+                    sprite.controller.setCurrentAnimation("off");
+                    renderable.setLayerType(RenderingLayers.LayerType.BACK_GROUND);
+                } else {
+                    collider.isTrigger = false;
+                    renderable.setLayerType(RenderingLayers.LayerType.FORE_GROUND);
+                    sprite.controller.setCurrentAnimation("on");
+                    sprite.controller.setCurrentAnimation("on-dark");
                 }
             }
 
             @Override
-            protected void processMessage(Message msg){
+            protected void processMessage(Message msg) {
                 int msgID;
-                switch (msg){
-                    case BUTTON_PRESSED:
-                        msgID = (int)msg.getArgs()[0];
-                        for(int id : param.switchIds) {
-                            if (msgID == id) {
-                                pressedSwitchNum++;
-                                break;
-                            }
+                if (msg instanceof Message.BUTTON_PRESSED) {
+                    msgID = (int) msg.getArgs()[0];
+                    for (int id : param.switchIds) {
+                        if (msgID == id) {
+                            pressedSwitchNum++;
+                            break;
                         }
-                        break;
-                    case BUTTON_RELEASED:
-                        msgID = (int)msg.getArgs()[0];
-                        for(int id : param.switchIds) {
-                            if (msgID == id) {
-                                pressedSwitchNum--;
-                                break;
-                            }
+                    }
+                }else if (msg instanceof Message.BUTTON_RELEASED) {
+                    msgID = (int) msg.getArgs()[0];
+                    for (int id : param.switchIds) {
+                        if (msgID == id) {
+                            pressedSwitchNum--;
+                            break;
                         }
-                        break;
-                    case POWER_SUPPLY:
-                        msgID = (int)msg.getArgs()[0];
-                        if(msgID == param.powerId){
-                            powerSupplied = true;
-                        }
-                        break;
-                    case POWER_STOP:
-                        msgID = (int)msg.getArgs()[0];
-                        if(msgID == param.powerId){
-                            powerSupplied = false;
-                        }
-                        break;
+                    }
+                }else if (msg instanceof Message.POWER_SUPPLY) {
+                    msgID = (int) msg.getArgs()[0];
+                    if (msgID == param.powerId) {
+                        powerSupplied = true;
+                    }
+                }else if (msg instanceof Message.POWER_STOP) {
+                    msgID = (int) msg.getArgs()[0];
+                    if (msgID == param.powerId) {
+                        powerSupplied = false;
+                    }
                 }
             }
         });

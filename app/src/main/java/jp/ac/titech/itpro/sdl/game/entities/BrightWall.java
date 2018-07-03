@@ -18,7 +18,7 @@ public class BrightWall extends Entity {
         SpriteComponent sprite = new SpriteComponent(R.drawable.floor,  16, 16, this);
         addComponent(transform);
         addComponent(sprite);
-        addComponent(new BrightRenderableComponent(transform, sprite, RenderingLayers.LayerType.FORE_GROUND, stage, this));
+        addComponent(new BrightRenderableComponent(transform, sprite, RenderingLayers.LayerType.BACKt_GROUND, stage, this));
         addComponent(new ColliderComponent(new Vector2(16,16), false, 0, this));
     }
 }

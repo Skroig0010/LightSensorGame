@@ -42,21 +42,19 @@ public class PowerWay extends Entity {
         addComponent(new MessageReceiverComponent(this, stage){
 
             @Override
-            protected void processMessage(Message msg){
+            protected void processMessage(Message msg) {
                 int msgID;
-                switch (msg){
-                    case POWER_SUPPLY:
-                        msgID = (int)msg.getArgs()[0];
-                        if(msgID == powerId){
-                            sprite.controller.setCurrentAnimation("on");
-                        }
-                        break;
-                    case POWER_STOP:
-                        msgID = (int)msg.getArgs()[0];
-                        if(msgID == powerId){
-                            sprite.controller.setCurrentAnimation("off");
-                        }
-                        break;
+                if (msg instanceof Message.POWER_SUPPLY){
+                    msgID = (int) msg.getArgs()[0];
+                    if (msgID == powerId) {
+                        sprite.controller.setCurrentAnimation("on");
+                    }
+                }
+                if(msg instanceof Message.POWER_STOP) {
+                    msgID = (int) msg.getArgs()[0];
+                    if (msgID == powerId) {
+                        sprite.controller.setCurrentAnimation("off");
+                    }
                 }
             }
         });

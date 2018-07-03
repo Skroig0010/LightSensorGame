@@ -10,6 +10,7 @@ import java.util.Queue;
 
 import jp.ac.titech.itpro.sdl.game.component.LightSensorComponent;
 import jp.ac.titech.itpro.sdl.game.component.SpriteComponent;
+import jp.ac.titech.itpro.sdl.game.component.TransformComponent;
 import jp.ac.titech.itpro.sdl.game.entities.Battery;
 import jp.ac.titech.itpro.sdl.game.entities.PowerWay;
 import jp.ac.titech.itpro.sdl.game.entities.SolarPanel;
@@ -28,7 +29,6 @@ import jp.ac.titech.itpro.sdl.game.component.IUpdatableComponent;
 import jp.ac.titech.itpro.sdl.game.component.MessageReceiverComponent;
 import jp.ac.titech.itpro.sdl.game.entities.BrightWall;
 import jp.ac.titech.itpro.sdl.game.entities.Floor;
-import jp.ac.titech.itpro.sdl.game.entities.Entity;
 import jp.ac.titech.itpro.sdl.game.entities.MovableBox;
 import jp.ac.titech.itpro.sdl.game.entities.Player;
 import jp.ac.titech.itpro.sdl.game.entities.Button;
@@ -37,7 +37,8 @@ import jp.ac.titech.itpro.sdl.game.entities.Wall;
 import jp.ac.titech.itpro.sdl.game.graphics.sprite.EmoSprite;
 import jp.ac.titech.itpro.sdl.game.math.Vector2;
 import jp.ac.titech.itpro.sdl.game.messages.Message;
-import jp.ac.titech.itpro.sdl.game.util.CSVReader;
+import jp.ac.titech.itpro.sdl.game.util.JsonReader;
+import jp.ac.titech.itpro.sdl.game.util.MapWithProperty;
 import jp.ac.titech.itpro.sdl.game.view.View;
 
 public class Stage {
@@ -47,10 +48,9 @@ public class Stage {
     private List<MessageReceiverComponent> receivers = new ArrayList<>();
     private List<MessageReceiverComponent> notified = new ArrayList<>();
     private List<AnimationController> animationControllers = new ArrayList<>();
-    private StageMap map;// 使ってない
+    private StageMap wallMap;// 衝突判定用
+    private List<ColliderComponent> collidableMover = new ArrayList<>();
 
-    private int width = 10;
-    private int height = 10;
     private int[][] mapdata;
     private int[][] powerIdMap;
     private int powerId = 1;
@@ -73,9 +73,12 @@ public class Stage {
         gaussSprite = new GaussSprite();
 
         // マップの設定
-        mapdata = CSVReader.read("map.csv");
+        MapWithProperty mapWithProperty = JsonReader.read("map.json");
+        mapdata = mapWithProperty.data;
+        int width = mapdata[0].length;
+        int height = mapdata.length;
         powerIdMap = new int[mapdata.length][mapdata[0].length];
-        map = new StageMap(width, height);
+        wallMap = new StageMap(width, height);
 
         // powerIdMapの作成
         // ソーラーで探索
@@ -103,9 +106,10 @@ public class Stage {
             for (int x = 0; x < width; x++){
                 Vector2 position = new Vector2(x * 16, y * 16);
                 int id1, id2;
+                int[] switchIds;
                 switch(mapdata[y][x]) {
                     case 0:
-                        map.set(x, y, new Floor(this, position));
+                        wallMap.set(x, y, new Floor(this, position));
                         break;
                     case 1:
                         Wall wall = new Wall(this, position);
@@ -117,30 +121,33 @@ public class Stage {
                         }else{
                             sprite.controller.setCurrentAnimation("block");
                         }
-                        map.set(x, y, wall);
+                        wallMap.set(x, y, wall);
                         break;
                     case 2:
-                        map.set(x, y, new Floor(this, position));
-                        new Player(this);
+                        wallMap.set(x, y, new Floor(this, position));
+                        new Player(this, position);
                         break;
                     case 3:
-                        map.set(x, y, new BrightWall(this, position));
+                        wallMap.set(x, y, new BrightWall(this, position));
                         break;
                     case 4:
-                        new Button(this, position, true,0);
-                        map.set(x, y, new Floor(this, position));
+                        new Floor(this, position);
+                        switchIds = mapWithProperty.properties.get(x + y * width).ids;
+                        boolean canRelease = mapWithProperty.properties.get(x + y * width).canRelease;
+                        wallMap.set(x, y, new Button(this, position, canRelease, switchIds[0]));
                         break;
                     case 5:
                         id1 = getPowerId(x, y, false);
-                        map.set(x, y, new VanishingWall(this, position, new int[]{0}, id1, 1));
+                        switchIds = mapWithProperty.properties.get(x + y * width).ids;
+                        wallMap.set(x, y, new VanishingWall(this, position, switchIds, id1));
                         break;
                     case 6:
-                        map.set(x, y, new MovableBox( position, this));
-                        map.set(x, y, new Floor(this, position));
+                        new MovableBox( position, this);
+                        wallMap.set(x, y, new Floor(this, position));
                         break;
                     case 7:
                         id1 = getPowerId(x, y, true);
-                        map.set(x, y, new SolarPanel( this, position, id1));
+                        wallMap.set(x, y, new SolarPanel( this, position, id1));
                         break;
                     case 8:
                         id1 = getPowerId(x, y, true);
@@ -155,12 +162,12 @@ public class Stage {
                         if(relatedOnPower(up) && relatedOnPower(right))dir = PowerWay.Direction.UP_RIGHT;
                         if(relatedOnPower(down) && relatedOnPower(left))dir = PowerWay.Direction.DOWN_LEFT;
                         if(relatedOnPower(down) && relatedOnPower(right))dir = PowerWay.Direction.DOWN_RIGHT;
-                        map.set(x, y, new PowerWay(this, position, id1, dir));
+                        wallMap.set(x, y, new PowerWay(this, position, id1, dir));
                         break;
                     case 9:
                         id1 = getPowerId(x, y, true);
                         id2 = getPowerId(x, y, false);
-                        map.set(x, y, new Battery(this, position, id2, id1));
+                        wallMap.set(x, y, new Battery(this, position, id2, id1));
                         break;
                 }
             }
@@ -181,7 +188,7 @@ public class Stage {
                 // すでに番号が決まっているはずなのでそれを返す
                 return powerIdMap[y][x];
             }else{
-                Log.e("Unexpected Error", "先にpowerIdMapを作ってください");
+                Log.e("Unexpected Error", "(" + x + ", " + y + ")先にpowerIdMapを作ってください");
                 return 0;
             }
         }else{
@@ -192,7 +199,7 @@ public class Stage {
             if(y > 0 && powerIdMap[y - 1][x] != 0 && powerIdMap[y - 1][x] != currId)return powerIdMap[y - 1][x];
             if(y < powerIdMap.length - 1 && powerIdMap[y + 1][x] != 0 && powerIdMap[y + 1][x] != currId)return powerIdMap[y + 1][x];
             // 周囲にpowerIdが無いならID付けつつ電源探索
-            Log.e("Unexpected Error", "先にpowerIdMapを作ってください");
+            Log.e("Unexpected Error", "(" + x + ", " + y + ")先にpowerIdMapを作ってください");
             return 0;
         }
     }
@@ -254,6 +261,12 @@ public class Stage {
         }else if(component instanceof IUpdatableComponent){
             updatables.add((IUpdatableComponent)component);
         }else if(component instanceof ColliderComponent){
+
+            // 親が動くもののEntityだったらcollidableMoverに入れる
+            if(component.getParent() instanceof Player || component.getParent() instanceof MovableBox){
+                collidableMover.add((ColliderComponent) component);
+            }
+
             collidables.add((ColliderComponent)component);
         }else if(component instanceof MessageReceiverComponent){
             receivers.add((MessageReceiverComponent)component);
@@ -319,39 +332,66 @@ public class Stage {
         }
 
         // 衝突判定
-        // TODO:O(n^2)なのよろしくないので(重くなったら)修正する
-        int size = collidables.size();
+        // マップとの衝突判定
+        for(ColliderComponent mover : collidableMover){
+            int moverX = (int)(mover.getGlobal().x + 8) / 16;
+            int moverY = (int)(mover.getGlobal().y + 8) / 16;
+            for (int y = moverY - 1; y <= moverY + 1; y++) {
+                for (int x = moverX - 1; x <= moverX + 1; x++) {
+                    ColliderComponent collider = wallMap.get(x, y).getComponent("jp.ac.titech.itpro.sdl.game.component.ColliderComponent");
+                    if(collider != null) {
+                        if (mover.on(collider)) {
+                            onCollide(mover, collider);
+                        } else if ((mover.isTrigger || collider.isTrigger) && mover.prevCollided.contains(collider)) {
+                            // どっちかがトリガーで前回衝突していたら
+                            whenGetOut(mover, collider);
+                        }
+                    }
+                }
+            }
+        }
+        // Mover同士の衝突判定
+        int size = collidableMover.size();
         for(int i = 0; i < size; i++){
             for (int j = 0; j < size; j++){
                 if(i <= j)break;
-                ColliderComponent collidable1 = collidables.get(i);
-                ColliderComponent collidable2 = collidables.get(j);
+                ColliderComponent collidable1 = collidableMover.get(i);
+                ColliderComponent collidable2 = collidableMover.get(j);
                 if(collidable1.on(collidable2)){
-                    // 両方共実態を持っているなら衝突解消を行う
-                    if(!(collidable1.isTrigger || collidable2.isTrigger)){
-                        collidable1.resolveCollision(collidable2);
-                    }else{
-                        if(!collidable1.prevCollided.contains(collidable2)){
-                            // 前回衝突していなかったらEnterを呼ぶ
-                            collidable1.enterCollide(collidable2);
-                            collidable2.enterCollide(collidable1);
-                            collidable1.prevCollided.add(collidable2);
-                            collidable2.prevCollided.add(collidable1);
-                        }
-                    }
-                    // 衝突解消後の値を渡す
-                    collidable1.onCollide(collidable2);
-                    collidable2.onCollide(collidable1);
+                    onCollide(collidable1, collidable2);
                 }else if((collidable1.isTrigger || collidable2.isTrigger) && collidable1.prevCollided.contains(collidable2)){
                     // どっちかがトリガーで前回衝突していたら
-                    collidable1.exitCollide(collidable2);
-                    collidable2.exitCollide(collidable1);
-                    collidable1.prevCollided.remove(collidable2);
-                    collidable2.prevCollided.remove(collidable1);
+                    whenGetOut(collidable1, collidable2);
                 }
             }
         }
     }
+
+    private void whenGetOut(ColliderComponent collidable1, ColliderComponent collidable2) {
+        collidable1.exitCollide(collidable2);
+        collidable2.exitCollide(collidable1);
+        collidable1.prevCollided.remove(collidable2);
+        collidable2.prevCollided.remove(collidable1);
+    }
+
+    private void onCollide(ColliderComponent collidable1, ColliderComponent collidable2){
+        // 両方共実態を持っているなら衝突解消を行う
+        if(!(collidable1.isTrigger || collidable2.isTrigger)){
+            collidable1.resolveCollision(collidable2);
+        }else{
+            if(!collidable1.prevCollided.contains(collidable2)){
+                // 前回衝突していなかったらEnterを呼ぶ
+                collidable1.enterCollide(collidable2);
+                collidable2.enterCollide(collidable1);
+                collidable1.prevCollided.add(collidable2);
+                collidable2.prevCollided.add(collidable1);
+            }
+        }
+        // 衝突解消後の値を渡す
+        collidable1.onCollide(collidable2);
+        collidable2.onCollide(collidable1);
+    }
+
 
     // notified処理中はnotifyできない。1F遅らせる
     private boolean isProcessingNotified = false;
@@ -413,7 +453,6 @@ public class Stage {
         renderLayer(lSprite, RenderingLayers.LayerType.CHARACTER);
         renderLayer(lSprite, RenderingLayers.LayerType.CHARACTER_OVER);
         renderLayer(lSprite, RenderingLayers.LayerType.FORE_GROUND);
-
         // ぼかして描画
         gaussianFrameBuffer2.bindFrameBuffer();
         GLES20.glViewport(0, 0, gaussianFrameBuffer2.width, gaussianFrameBuffer2.height);
@@ -446,11 +485,17 @@ public class Stage {
         // Uniformを渡す
         emoSprite.render(0, 240, postFrameBuffer.getTexture(), new Rect(0, 0, fbSize, fbSize), 160, -240);
         GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
+
     }
 
     private void renderLayer(Sprite sprite, RenderingLayers.LayerType type){
+        Vector2 viewPosition = View.getViewPosition();
         for (IRenderableComponent renderable : layers.get(type) ) {
-            renderable.render(sprite);
+            Vector2 position = renderable.getTransform().getGlobal();
+            if(position.x > viewPosition.x - 16 && position.x < viewPosition.x + 160
+                    && position.y > viewPosition.y - 16 && position.y < viewPosition.y + 240) {
+                renderable.render(sprite);
+            }
         }
     }
 }

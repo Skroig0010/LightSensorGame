@@ -84,8 +84,13 @@ public class ColliderComponent implements IComponent, ITransformable{
         float m2 = other.invMass;
         Vector2 size2 = other.getSize();
 
-
-        Vector2 n = v1.sub(v2).normalize();
+        Vector2 n = v1.sub(v2);
+        if(n.lengthSquared() == 0) {
+            // 解消できないので放置
+            return;
+        }else{
+            n = n.normalize();
+        }
         // めり込み距離の計算
         // 全部正値になってる。小さい方を取ってそれを解決するようなnの拡大率を算出し、nに掛ける
         float x1 = v1.x + size.x - v2.x;

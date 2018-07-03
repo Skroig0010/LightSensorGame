@@ -27,25 +27,20 @@ public class Battery extends Entity {
             @Override
             protected void processMessage(Message msg){
                 int msgID;
-                switch (msg){
-                    case POWER_SUPPLY:
-                        msgID = (int)msg.getArgs()[0];
-                        if (msgID == powerInId) {
-                            Message msg2 = Message.POWER_STOP;
-                            msg2.setArgs(new Object[]{powerOutId});
-                            stage.notifyAll(msg2);
-                            sprite.controller.setCurrentAnimation("off");
-                        }
-                        break;
-                    case POWER_STOP:
-                        msgID = (int)msg.getArgs()[0];
-                        if (msgID == powerInId) {
-                            Message msg2 = Message.POWER_SUPPLY;
-                            msg2.setArgs(new Object[]{powerOutId});
-                            stage.notifyAll(msg2);
-                            sprite.controller.setCurrentAnimation("on");
-                        }
-                        break;
+                if(msg instanceof Message.POWER_SUPPLY) {
+                    msgID = (int) msg.getArgs()[0];
+                    if (msgID == powerInId) {
+                        Message msg2 = msg.new POWER_STOP(new Object[]{powerOutId});
+                        stage.notifyAll(msg2);
+                        sprite.controller.setCurrentAnimation("off");
+                    }
+                }else if(msg instanceof Message.POWER_STOP) {
+                    msgID = (int) msg.getArgs()[0];
+                    if (msgID == powerInId) {
+                        Message msg2 = msg.new POWER_SUPPLY(new Object[]{powerOutId});
+                        stage.notifyAll(msg2);
+                        sprite.controller.setCurrentAnimation("on");
+                    }
                 }
             }
         });

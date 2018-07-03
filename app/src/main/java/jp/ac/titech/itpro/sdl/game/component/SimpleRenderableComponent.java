@@ -25,13 +25,18 @@ public class SimpleRenderableComponent implements IRenderableComponent {
     }
 
     @Override
+    public TransformComponent getTransform() {
+        return transform;
+    }
+
+    @Override
     public void setLayerType(RenderingLayers.LayerType type) {
         if(this.type != type) {
             stage.changeRnderingLayer(this, type);
             this.type = type;
         }
-
     }
+
 
     @Override
     public void render(Sprite sprite) {

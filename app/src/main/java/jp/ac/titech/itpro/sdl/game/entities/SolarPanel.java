@@ -32,13 +32,11 @@ public class SolarPanel extends Entity {
             @Override
             public void onBrightnessChanged(boolean isBright) {
                 if(isBright) {
-                    Message msg = Message.POWER_SUPPLY;
-                    msg.setArgs(new Object[]{param.id});
+                    Message msg = new Message().new POWER_SUPPLY(new Object[]{param.id});
                     stage.notifyAll(msg);
                     sprite.controller.setCurrentAnimation("bright");
                 }else{
-                    Message msg = Message.POWER_STOP;
-                    msg.setArgs(new Object[]{param.id});
+                    Message msg = new Message().new POWER_STOP(new Object[]{param.id});
                     stage.notifyAll(msg);
                     sprite.controller.setCurrentAnimation("dark");
                 }

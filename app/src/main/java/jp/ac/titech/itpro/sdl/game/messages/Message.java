@@ -3,18 +3,34 @@ package jp.ac.titech.itpro.sdl.game.messages;
 import java.util.ArrayList;
 import java.util.List;
 
-public enum Message {
-    BUTTON_PRESSED(null),
-    BUTTON_RELEASED(null),
-    POWER_SUPPLY(null),
-    POWER_STOP(null),
-    NOTHING(null);
-
+public class Message {
+    public class BUTTON_PRESSED extends Message{
+        public BUTTON_PRESSED(Object[] args){
+            super(args);
+        }
+    }
+    public class BUTTON_RELEASED extends Message{
+        public BUTTON_RELEASED(Object[] args){
+            super(args);
+        }
+    }
+    public class POWER_SUPPLY extends Message{
+        public POWER_SUPPLY(Object[] args){
+            super(args);
+        }
+    }
+    public class POWER_STOP extends Message{
+        public POWER_STOP(Object[] args){
+            super(args);
+        }
+    }
     private Object[] args;
 
     private Message(Object[] args){
         this.args = args;
     }
+
+    public Message(){}
 
     public Object[] getArgs(){
         return args;
