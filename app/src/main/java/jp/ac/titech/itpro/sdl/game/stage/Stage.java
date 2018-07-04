@@ -10,7 +10,6 @@ import java.util.Queue;
 
 import jp.ac.titech.itpro.sdl.game.component.LightSensorComponent;
 import jp.ac.titech.itpro.sdl.game.component.SpriteComponent;
-import jp.ac.titech.itpro.sdl.game.component.TransformComponent;
 import jp.ac.titech.itpro.sdl.game.entities.Battery;
 import jp.ac.titech.itpro.sdl.game.entities.Entity;
 import jp.ac.titech.itpro.sdl.game.entities.PowerWay;
@@ -50,7 +49,7 @@ public class Stage {
     private List<MessageReceiverComponent> notified = new ArrayList<>();
     private List<AnimationController> animationControllers = new ArrayList<>();
     private StageMap<Entity> wallMap;// 衝突判定用
-    private StageMap<IRenderableComponent> renderMapForeground, renderMapBackGround;
+    private StageMap<IRenderableComponent> renderMapForeGround, renderMapBackGround;
     private List<ColliderComponent> collidableMover = new ArrayList<>();
 
     private int[][] mapdata;
@@ -81,7 +80,7 @@ public class Stage {
         int height = mapdata.length;
         powerIdMap = new int[mapdata.length][mapdata[0].length];
         wallMap = new StageMap<>(width, height);
-        renderMapForeground = new StageMap<>(width, height);
+        renderMapForeGround = new StageMap<>(width, height);
         renderMapBackGround = new StageMap<>(width, height);
 
         // powerIdMapの作成
@@ -117,7 +116,7 @@ public class Stage {
                         e = new Floor(this, position);
                         wallMap.set(x, y, null);
                         renderMapBackGround.set(x, y, (IRenderableComponent)e.getComponent("jp.ac.titech.itpro.sdl.game.component.IRenderableComponent"));
-                        renderMapForeground.set(x, y, null);
+                        renderMapForeGround.set(x, y, null);
                         break;
                     case 1:
                         e = new Wall(this, position);
@@ -131,26 +130,26 @@ public class Stage {
                         }
                         wallMap.set(x, y, e);
                         renderMapBackGround.set(x, y, null);
-                        renderMapForeground.set(x, y, (IRenderableComponent)e.getComponent("jp.ac.titech.itpro.sdl.game.component.IRenderableComponent"));
+                        renderMapForeGround.set(x, y, (IRenderableComponent)e.getComponent("jp.ac.titech.itpro.sdl.game.component.IRenderableComponent"));
                         break;
                     case 2:
                         e = new Floor(this, position);
                         wallMap.set(x, y, null);
                         renderMapBackGround.set(x, y, (IRenderableComponent)e.getComponent("jp.ac.titech.itpro.sdl.game.component.IRenderableComponent"));
-                        renderMapForeground.set(x, y, null);
+                        renderMapForeGround.set(x, y, null);
                         new Player(this, position);
                         break;
                     case 3:
                         e = new BrightWall(this, position);
                         wallMap.set(x, y, e);
-                        renderMapBackGround.set(x, y, null);
-                        renderMapForeground.set(x, y, (IRenderableComponent)e.getComponent("jp.ac.titech.itpro.sdl.game.component.IRenderableComponent"));
+                        renderMapBackGround.set(x, y, (IRenderableComponent)e.getComponent("jp.ac.titech.itpro.sdl.game.component.IRenderableComponent"));
+                        renderMapForeGround.set(x, y, null);
                         break;
                     case 4:
                         e = new Floor(this, position);
                         wallMap.set(x, y, null);
                         renderMapBackGround.set(x, y, (IRenderableComponent)e.getComponent("jp.ac.titech.itpro.sdl.game.component.IRenderableComponent"));
-                        renderMapForeground.set(x, y, null);
+                        renderMapForeGround.set(x, y, null);
                         switchIds = mapWithProperty.properties.get(x + y * width).ids;
                         boolean canRelease = mapWithProperty.properties.get(x + y * width).canRelease;
                         wallMap.set(x, y, new Button(this, position, canRelease, switchIds[0]));
@@ -161,21 +160,21 @@ public class Stage {
                         e = new VanishingWall(this, position, switchIds, id1);
                         wallMap.set(x, y, e);
                         renderMapBackGround.set(x, y, null);
-                        renderMapForeground.set(x, y, (IRenderableComponent)e.getComponent("jp.ac.titech.itpro.sdl.game.component.IRenderableComponent"));
+                        renderMapForeGround.set(x, y, (IRenderableComponent)e.getComponent("jp.ac.titech.itpro.sdl.game.component.IRenderableComponent"));
                         break;
                     case 6:
                         new MovableBox( position, this);
                         e = new Floor(this, position);
                         wallMap.set(x, y, null);
                         renderMapBackGround.set(x, y, (IRenderableComponent)e.getComponent("jp.ac.titech.itpro.sdl.game.component.IRenderableComponent"));
-                        renderMapForeground.set(x, y, null);
+                        renderMapForeGround.set(x, y, null);
                         break;
                     case 7:
                         id1 = getPowerId(x, y, true);
                         e = new SolarPanel( this, position, id1);
                         wallMap.set(x, y, e);
                         renderMapBackGround.set(x, y, null);
-                        renderMapForeground.set(x, y, (IRenderableComponent)e.getComponent("jp.ac.titech.itpro.sdl.game.component.IRenderableComponent"));
+                        renderMapForeGround.set(x, y, (IRenderableComponent)e.getComponent("jp.ac.titech.itpro.sdl.game.component.IRenderableComponent"));
                         break;
                     case 8:
                         id1 = getPowerId(x, y, true);
@@ -193,7 +192,7 @@ public class Stage {
                         e = new PowerWay(this, position, id1, dir);
                         wallMap.set(x, y, null);
                         renderMapBackGround.set(x, y, (IRenderableComponent)e.getComponent("jp.ac.titech.itpro.sdl.game.component.IRenderableComponent"));
-                        renderMapForeground.set(x, y, null);
+                        renderMapForeGround.set(x, y, null);
                         break;
                     case 9:
                         id1 = getPowerId(x, y, true);
@@ -201,7 +200,7 @@ public class Stage {
                         e = new Battery(this, position, id2, id1);
                         wallMap.set(x, y, e);
                         renderMapBackGround.set(x, y, null);
-                        renderMapForeground.set(x, y, (IRenderableComponent)e.getComponent("jp.ac.titech.itpro.sdl.game.component.IRenderableComponent"));
+                        renderMapForeGround.set(x, y, (IRenderableComponent)e.getComponent("jp.ac.titech.itpro.sdl.game.component.IRenderableComponent"));
                         break;
                 }
             }
@@ -278,7 +277,7 @@ public class Stage {
             }else{
                 // 探索したらID付いているはずなのについてないのでおかしい
                 // 唯一バッテリーの可能性がある
-                if(mapId != 9)Log.e("マップ構成エラー", "位置(" + x + ", " + y + ")近辺に不具合あり");
+                if(mapId != 9)Log.e("マップ構成エラー", "位置(" + x + ", " + y + ")近辺に不具合あり. mapId = " + mapId);
             }
         }
         return false;
@@ -460,6 +459,31 @@ public class Stage {
     public void changeRnderingLayer(IRenderableComponent renderable, RenderingLayers.LayerType type){
         layers.remove(renderable);
         layers.add(type, renderable);
+
+        int x = (int)(renderable.getTransform().getGlobal().x + 8) / 16;
+        int y = (int)(renderable.getTransform().getGlobal().y + 8) / 16;
+        switch (renderable.getLayerType()){
+            case BACK_GROUND:
+                if(type == RenderingLayers.LayerType.FORE_GROUND){
+                    renderMapBackGround.set(x, y, null);
+                    renderMapForeGround.set(x, y, renderable);
+                }else if(type == RenderingLayers.LayerType.BACK_GROUND){
+                    // 何もしない
+                }else{
+                    renderMapBackGround.set(x, y, null);
+                }
+                break;
+            case FORE_GROUND:
+                if(type == RenderingLayers.LayerType.BACK_GROUND){
+                    renderMapForeGround.set(x, y, null);
+                    renderMapBackGround.set(x, y, renderable);
+                }else if(type == RenderingLayers.LayerType.FORE_GROUND){
+                    // 何もしない
+                }else{
+                    renderMapBackGround.set(x, y, null);
+                }
+                break;
+        }
     }
 
     /**
@@ -484,9 +508,9 @@ public class Stage {
         lSprite.setLightValue(1f);
         lSprite.setIsBright(false);
         renderMap(lSprite, RenderingLayers.LayerType.BACK_GROUND);
-        renderLayer(lSprite, RenderingLayers.LayerType.CHARACTER_UNDER);
-        renderLayer(lSprite, RenderingLayers.LayerType.CHARACTER);
-        renderLayer(lSprite, RenderingLayers.LayerType.CHARACTER_OVER);
+        //renderLayer(lSprite, RenderingLayers.LayerType.CHARACTER_UNDER);
+        //renderLayer(lSprite, RenderingLayers.LayerType.CHARACTER);
+        //renderLayer(lSprite, RenderingLayers.LayerType.CHARACTER_OVER);
         renderMap(lSprite, RenderingLayers.LayerType.FORE_GROUND);
         // ぼかして描画
         gaussianFrameBuffer2.bindFrameBuffer();
@@ -525,8 +549,8 @@ public class Stage {
 
     private void renderMap(Sprite sprite, RenderingLayers.LayerType type){
         Vector2 viewPosition = View.getViewPosition();
-        int vx = Math.max(0, Math.min((int)viewPosition.x / 16, mapdata[0].length));
-        int vy = Math.max(0, Math.min((int)viewPosition.y / 16, mapdata.length));
+        int vx = Math.max(0, Math.min((int)viewPosition.x / 16, mapdata[0].length - 12));
+        int vy = Math.max(0, Math.min((int)viewPosition.y / 16, mapdata.length - 16));
 
         StageMap<IRenderableComponent> map;
         switch (type){
@@ -534,13 +558,13 @@ public class Stage {
                 map = renderMapBackGround;
                 break;
             case FORE_GROUND:
-                map = renderMapForeground;
+                map = renderMapForeGround;
                 break;
             default:
                 return;
         }
         for (int y = vy; y < vy+ 15; y++) {
-            for (int x = vx; x < vx + 10; x++) {
+            for (int x = vx; x < vx + 11; x++) {
                 IRenderableComponent r = map.get(x, y);
                 if(r != null)r.render(sprite);
             }

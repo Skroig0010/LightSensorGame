@@ -62,7 +62,7 @@ public class GLRenderer implements GLSurfaceView.Renderer, Runnable {
             long x = System.nanoTime();
             scene.update();
             MainActivity.instance.glSurfaceView.requestRender();
-            while (System.nanoTime() - x < 16000000 || scene.isRendering()){}
+            while (System.nanoTime() - x < 16666666 || scene.isRendering()){}
         }
     }
 }
