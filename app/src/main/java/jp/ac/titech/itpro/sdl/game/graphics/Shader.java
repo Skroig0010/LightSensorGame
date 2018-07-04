@@ -15,6 +15,7 @@ import jp.ac.titech.itpro.sdl.game.MainActivity;
 
 public class Shader {
     private int shaderProgram;
+    private static int prevProgram = 0;
 
     public Shader(String filename){
         // ファイル読み込み
@@ -31,7 +32,10 @@ public class Shader {
     }
 
     public void useProgram(){
-        GLES20.glUseProgram(shaderProgram);
+        if(shaderProgram != prevProgram){
+            prevProgram = shaderProgram;
+            GLES20.glUseProgram(shaderProgram);
+        }
     }
 
     public int getAttributeLocation(String attrName){

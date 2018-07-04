@@ -6,6 +6,7 @@ import jp.ac.titech.itpro.sdl.game.stage.Stage;
 public class SceneStage implements IScene {
 
     private Stage stage;
+    private boolean isRendering;
     public SceneStage(){
         stage = new Stage();
     }
@@ -15,6 +16,13 @@ public class SceneStage implements IScene {
 
     }
     public void render(Sprite sprite){
+        isRendering = true;
         stage.render(sprite);
+        isRendering = false;
+    }
+
+    @Override
+    public boolean isRendering() {
+        return isRendering;
     }
 }

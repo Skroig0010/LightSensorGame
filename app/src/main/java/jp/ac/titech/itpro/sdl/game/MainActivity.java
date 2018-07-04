@@ -20,7 +20,7 @@ import jp.ac.titech.itpro.sdl.game.math.Vector2;
 public class MainActivity extends Activity implements SensorEventListener{
 
     // OpenGL描画関連
-    private GLSurfaceView glSurfaceView;
+    public GLSurfaceView glSurfaceView;
     private GLRenderer mRenderer;
 
     // 光センサー関連
@@ -42,7 +42,7 @@ public class MainActivity extends Activity implements SensorEventListener{
         glSurfaceView.setEGLContextClientVersion(2);
         mRenderer = new GLRenderer(this);
         glSurfaceView.setRenderer(mRenderer);
-        glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
+        glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
         setContentView(glSurfaceView);
 
         // 光センサー初期化

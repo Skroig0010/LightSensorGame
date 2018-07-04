@@ -13,6 +13,7 @@ public class Texture {
     public final int width;
     public final int height;
     private int[] texture;
+    private static int prevTexture = -1;
 
     public Texture(Bitmap bitmap){
         this.width = bitmap.getWidth();
@@ -62,10 +63,14 @@ public class Texture {
     }
 
     public void useTexture(){
-        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texture[0]);
+        if(texture[0] != prevTexture){
+            prevTexture = texture[0];
+            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texture[0]);
+        }
     }
 
     public void unbindTexture(){
+        prevTexture = -1;
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
     }
 
