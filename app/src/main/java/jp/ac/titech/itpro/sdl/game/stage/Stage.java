@@ -12,6 +12,7 @@ import jp.ac.titech.itpro.sdl.game.component.LightSensorComponent;
 import jp.ac.titech.itpro.sdl.game.component.SpriteComponent;
 import jp.ac.titech.itpro.sdl.game.component.TransformComponent;
 import jp.ac.titech.itpro.sdl.game.entities.Battery;
+import jp.ac.titech.itpro.sdl.game.entities.Entity;
 import jp.ac.titech.itpro.sdl.game.entities.PowerWay;
 import jp.ac.titech.itpro.sdl.game.entities.SolarPanel;
 import jp.ac.titech.itpro.sdl.game.graphics.FrameBuffer;
@@ -48,7 +49,8 @@ public class Stage {
     private List<MessageReceiverComponent> receivers = new ArrayList<>();
     private List<MessageReceiverComponent> notified = new ArrayList<>();
     private List<AnimationController> animationControllers = new ArrayList<>();
-    private StageMap wallMap;// 衝突判定用
+    private StageMap<Entity> wallMap;// 衝突判定用
+    private StageMap<IRenderableComponent> renderMapForeground, renderMapBackGround;
     private List<ColliderComponent> collidableMover = new ArrayList<>();
 
     private int[][] mapdata;
@@ -78,7 +80,9 @@ public class Stage {
         int width = mapdata[0].length;
         int height = mapdata.length;
         powerIdMap = new int[mapdata.length][mapdata[0].length];
-        wallMap = new StageMap(width, height);
+        wallMap = new StageMap<>(width, height);
+        renderMapForeground = new StageMap<>(width, height);
+        renderMapBackGround = new StageMap<>(width, height);
 
         // powerIdMapの作成
         // ソーラーで探索
@@ -107,13 +111,17 @@ public class Stage {
                 Vector2 position = new Vector2(x * 16, y * 16);
                 int id1, id2;
                 int[] switchIds;
+                Entity e;
                 switch(mapdata[y][x]) {
                     case 0:
-                        wallMap.set(x, y, new Floor(this, position));
+                        e = new Floor(this, position);
+                        wallMap.set(x, y, null);
+                        renderMapBackGround.set(x, y, (IRenderableComponent)e.getComponent("jp.ac.titech.itpro.sdl.game.component.IRenderableComponent"));
+                        renderMapForeground.set(x, y, null);
                         break;
                     case 1:
-                        Wall wall = new Wall(this, position);
-                        SpriteComponent sprite = wall.getComponent("jp.ac.titech.itpro.sdl.game.component.SpriteComponent");
+                        e = new Wall(this, position);
+                        SpriteComponent sprite = e.getComponent("jp.ac.titech.itpro.sdl.game.component.SpriteComponent");
                         if(y == height - 1 || mapdata[(y + 1)][x] == 1){
                             sprite.controller.setCurrentAnimation("blank");
                         }else if(y == 0 || mapdata[(y - 1)][x] == 1){
@@ -121,17 +129,28 @@ public class Stage {
                         }else{
                             sprite.controller.setCurrentAnimation("block");
                         }
-                        wallMap.set(x, y, wall);
+                        wallMap.set(x, y, e);
+                        renderMapBackGround.set(x, y, null);
+                        renderMapForeground.set(x, y, (IRenderableComponent)e.getComponent("jp.ac.titech.itpro.sdl.game.component.IRenderableComponent"));
                         break;
                     case 2:
-                        wallMap.set(x, y, new Floor(this, position));
+                        e = new Floor(this, position);
+                        wallMap.set(x, y, null);
+                        renderMapBackGround.set(x, y, (IRenderableComponent)e.getComponent("jp.ac.titech.itpro.sdl.game.component.IRenderableComponent"));
+                        renderMapForeground.set(x, y, null);
                         new Player(this, position);
                         break;
                     case 3:
-                        wallMap.set(x, y, new BrightWall(this, position));
+                        e = new BrightWall(this, position);
+                        wallMap.set(x, y, e);
+                        renderMapBackGround.set(x, y, null);
+                        renderMapForeground.set(x, y, (IRenderableComponent)e.getComponent("jp.ac.titech.itpro.sdl.game.component.IRenderableComponent"));
                         break;
                     case 4:
-                        new Floor(this, position);
+                        e = new Floor(this, position);
+                        wallMap.set(x, y, null);
+                        renderMapBackGround.set(x, y, (IRenderableComponent)e.getComponent("jp.ac.titech.itpro.sdl.game.component.IRenderableComponent"));
+                        renderMapForeground.set(x, y, null);
                         switchIds = mapWithProperty.properties.get(x + y * width).ids;
                         boolean canRelease = mapWithProperty.properties.get(x + y * width).canRelease;
                         wallMap.set(x, y, new Button(this, position, canRelease, switchIds[0]));
@@ -139,15 +158,24 @@ public class Stage {
                     case 5:
                         id1 = getPowerId(x, y, false);
                         switchIds = mapWithProperty.properties.get(x + y * width).ids;
-                        wallMap.set(x, y, new VanishingWall(this, position, switchIds, id1));
+                        e = new VanishingWall(this, position, switchIds, id1);
+                        wallMap.set(x, y, e);
+                        renderMapBackGround.set(x, y, null);
+                        renderMapForeground.set(x, y, (IRenderableComponent)e.getComponent("jp.ac.titech.itpro.sdl.game.component.IRenderableComponent"));
                         break;
                     case 6:
                         new MovableBox( position, this);
-                        wallMap.set(x, y, new Floor(this, position));
+                        e = new Floor(this, position);
+                        wallMap.set(x, y, null);
+                        renderMapBackGround.set(x, y, (IRenderableComponent)e.getComponent("jp.ac.titech.itpro.sdl.game.component.IRenderableComponent"));
+                        renderMapForeground.set(x, y, null);
                         break;
                     case 7:
                         id1 = getPowerId(x, y, true);
-                        wallMap.set(x, y, new SolarPanel( this, position, id1));
+                        e = new SolarPanel( this, position, id1);
+                        wallMap.set(x, y, e);
+                        renderMapBackGround.set(x, y, null);
+                        renderMapForeground.set(x, y, (IRenderableComponent)e.getComponent("jp.ac.titech.itpro.sdl.game.component.IRenderableComponent"));
                         break;
                     case 8:
                         id1 = getPowerId(x, y, true);
@@ -162,12 +190,18 @@ public class Stage {
                         if(relatedOnPower(up) && relatedOnPower(right))dir = PowerWay.Direction.UP_RIGHT;
                         if(relatedOnPower(down) && relatedOnPower(left))dir = PowerWay.Direction.DOWN_LEFT;
                         if(relatedOnPower(down) && relatedOnPower(right))dir = PowerWay.Direction.DOWN_RIGHT;
-                        wallMap.set(x, y, new PowerWay(this, position, id1, dir));
+                        e = new PowerWay(this, position, id1, dir);
+                        wallMap.set(x, y, null);
+                        renderMapBackGround.set(x, y, (IRenderableComponent)e.getComponent("jp.ac.titech.itpro.sdl.game.component.IRenderableComponent"));
+                        renderMapForeground.set(x, y, null);
                         break;
                     case 9:
                         id1 = getPowerId(x, y, true);
                         id2 = getPowerId(x, y, false);
-                        wallMap.set(x, y, new Battery(this, position, id2, id1));
+                        e = new Battery(this, position, id2, id1);
+                        wallMap.set(x, y, e);
+                        renderMapBackGround.set(x, y, null);
+                        renderMapForeground.set(x, y, (IRenderableComponent)e.getComponent("jp.ac.titech.itpro.sdl.game.component.IRenderableComponent"));
                         break;
                 }
             }
@@ -338,6 +372,7 @@ public class Stage {
             int moverY = (int)(mover.getGlobal().y + 8) / 16;
             for (int y = moverY - 1; y <= moverY + 1; y++) {
                 for (int x = moverX - 1; x <= moverX + 1; x++) {
+                    if(wallMap.get(x, y) == null)continue;
                     ColliderComponent collider = wallMap.get(x, y).getComponent("jp.ac.titech.itpro.sdl.game.component.ColliderComponent");
                     if(collider != null) {
                         if (mover.on(collider)) {
@@ -448,11 +483,11 @@ public class Stage {
                 Math.max(MainActivity.instance.getBrightness() / MainActivity.instance.getInitialBrightness(), 0.5f)));
         lSprite.setLightValue(1f);
         lSprite.setIsBright(false);
-        renderLayer(lSprite, RenderingLayers.LayerType.BACK_GROUND);
+        renderMap(lSprite, RenderingLayers.LayerType.BACK_GROUND);
         renderLayer(lSprite, RenderingLayers.LayerType.CHARACTER_UNDER);
         renderLayer(lSprite, RenderingLayers.LayerType.CHARACTER);
         renderLayer(lSprite, RenderingLayers.LayerType.CHARACTER_OVER);
-        renderLayer(lSprite, RenderingLayers.LayerType.FORE_GROUND);
+        renderMap(lSprite, RenderingLayers.LayerType.FORE_GROUND);
         // ぼかして描画
         gaussianFrameBuffer2.bindFrameBuffer();
         GLES20.glViewport(0, 0, gaussianFrameBuffer2.width, gaussianFrameBuffer2.height);
@@ -476,16 +511,40 @@ public class Stage {
         GLES20.glClearColor(0.0f, 0.0f, 1.0f, 1);
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
         // レイヤーの描画
-        renderLayer(sprite, RenderingLayers.LayerType.BACK_GROUND);
+        renderMap(sprite, RenderingLayers.LayerType.BACK_GROUND);
         renderLayer(sprite, RenderingLayers.LayerType.CHARACTER_UNDER);
         renderLayer(sprite, RenderingLayers.LayerType.CHARACTER);
         renderLayer(sprite, RenderingLayers.LayerType.CHARACTER_OVER);
-        renderLayer(sprite, RenderingLayers.LayerType.FORE_GROUND);
+        renderMap(sprite, RenderingLayers.LayerType.FORE_GROUND);
         GLES20.glBlendFunc(GLES20.GL_ZERO, GLES20.GL_SRC_COLOR);
         // Uniformを渡す
         emoSprite.render(0, 240, postFrameBuffer.getTexture(), new Rect(0, 0, fbSize, fbSize), 160, -240);
         GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
 
+    }
+
+    private void renderMap(Sprite sprite, RenderingLayers.LayerType type){
+        Vector2 viewPosition = View.getViewPosition();
+        int vx = Math.max(0, Math.min((int)viewPosition.x / 16, mapdata[0].length));
+        int vy = Math.max(0, Math.min((int)viewPosition.y / 16, mapdata.length));
+
+        StageMap<IRenderableComponent> map;
+        switch (type){
+            case BACK_GROUND:
+                map = renderMapBackGround;
+                break;
+            case FORE_GROUND:
+                map = renderMapForeground;
+                break;
+            default:
+                return;
+        }
+        for (int y = vy; y < vy+ 15; y++) {
+            for (int x = vx; x < vx + 10; x++) {
+                IRenderableComponent r = map.get(x, y);
+                if(r != null)r.render(sprite);
+            }
+        }
     }
 
     private void renderLayer(Sprite sprite, RenderingLayers.LayerType type){
