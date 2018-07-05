@@ -59,11 +59,7 @@ public class Player extends Entity{
                 Vector2 dir = to.sub(position);
                 float veloc = len / 50;
                 if(veloc > 8)veloc = 8;
-                if(dir.lengthSquared() > veloc * veloc){
-                    transform.setLocal(position.add(dir.normalize().scale(veloc)));
-                }else{
-                    transform.setLocal(to);
-                }
+                transform.setLocal(position.add(dir.normalize().scale(veloc)));
                 View.setTargetPosition(transform.getGlobal().sub(72, 112));
             }
 

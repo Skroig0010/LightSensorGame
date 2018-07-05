@@ -365,6 +365,21 @@ public class Stage {
         }
 
         // 衝突判定
+        // Mover同士の衝突判定
+        int size = collidableMover.size();
+        for(int i = 0; i < size; i++){
+            for (int j = 0; j < size; j++){
+                if(i <= j)break;
+                ColliderComponent collidable1 = collidableMover.get(i);
+                ColliderComponent collidable2 = collidableMover.get(j);
+                if(collidable1.on(collidable2)){
+                    onCollide(collidable1, collidable2);
+                }else if((collidable1.isTrigger || collidable2.isTrigger) && collidable1.prevCollided.contains(collidable2)){
+                    // どっちかがトリガーで前回衝突していたら
+                    whenGetOut(collidable1, collidable2);
+                }
+            }
+        }
         // マップとの衝突判定
         for(ColliderComponent mover : collidableMover){
             int moverX = (int)(mover.getGlobal().x + 8) / 16;
@@ -381,21 +396,6 @@ public class Stage {
                             whenGetOut(mover, collider);
                         }
                     }
-                }
-            }
-        }
-        // Mover同士の衝突判定
-        int size = collidableMover.size();
-        for(int i = 0; i < size; i++){
-            for (int j = 0; j < size; j++){
-                if(i <= j)break;
-                ColliderComponent collidable1 = collidableMover.get(i);
-                ColliderComponent collidable2 = collidableMover.get(j);
-                if(collidable1.on(collidable2)){
-                    onCollide(collidable1, collidable2);
-                }else if((collidable1.isTrigger || collidable2.isTrigger) && collidable1.prevCollided.contains(collidable2)){
-                    // どっちかがトリガーで前回衝突していたら
-                    whenGetOut(collidable1, collidable2);
                 }
             }
         }
@@ -499,25 +499,24 @@ public class Stage {
         }
         // 白黒画像をそのまま描画
         gaussianFrameBuffer1.bindFrameBuffer();
+        float darkValue = Math.min(1f,
+                Math.max(MainActivity.instance.getBrightness() / MainActivity.instance.getInitialBrightness(), 0.5f));
+
         GLES20.glViewport(0, 0, gaussianFrameBuffer1.width, gaussianFrameBuffer1.height);
-        GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1);
+        GLES20.glClearColor(darkValue, darkValue, darkValue, 1);
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
+
         // enumの順序が上から下とは限らないので直接指定
-        lSprite.setDarkValue(Math.min(1f,
-                Math.max(MainActivity.instance.getBrightness() / MainActivity.instance.getInitialBrightness(), 0.5f)));
+        lSprite.setDarkValue(darkValue);
         lSprite.setLightValue(1f);
         lSprite.setIsBright(false);
         renderMap(lSprite, RenderingLayers.LayerType.BACK_GROUND);
-        //renderLayer(lSprite, RenderingLayers.LayerType.CHARACTER_UNDER);
-        //renderLayer(lSprite, RenderingLayers.LayerType.CHARACTER);
-        //renderLayer(lSprite, RenderingLayers.LayerType.CHARACTER_OVER);
-        renderMap(lSprite, RenderingLayers.LayerType.FORE_GROUND);
+
         // ぼかして描画
         gaussianFrameBuffer2.bindFrameBuffer();
         GLES20.glViewport(0, 0, gaussianFrameBuffer2.width, gaussianFrameBuffer2.height);
         GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1);
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
-
         // Uniformを渡す
         gaussSprite.setHorizontal(false);
         gaussSprite.render(0, 0, gaussianFrameBuffer1.getTexture(), new Rect(0, 0, fbSize, fbSize), 160, 240);
@@ -532,7 +531,7 @@ public class Stage {
 
         postFrameBuffer.unbindFrameBuffer();
         GLES20.glViewport(0, 0, GLRenderer.getWidth(), GLRenderer.getHeight());
-        GLES20.glClearColor(0.0f, 0.0f, 1.0f, 1);
+        GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1);
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
         // レイヤーの描画
         renderMap(sprite, RenderingLayers.LayerType.BACK_GROUND);
@@ -541,6 +540,7 @@ public class Stage {
         renderLayer(sprite, RenderingLayers.LayerType.CHARACTER_OVER);
         renderMap(sprite, RenderingLayers.LayerType.FORE_GROUND);
         GLES20.glBlendFunc(GLES20.GL_ZERO, GLES20.GL_SRC_COLOR);
+        renderMap(lSprite, RenderingLayers.LayerType.BACK_GROUND);
         // Uniformを渡す
         emoSprite.render(0, 240, postFrameBuffer.getTexture(), new Rect(0, 0, fbSize, fbSize), 160, -240);
         GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
@@ -549,8 +549,8 @@ public class Stage {
 
     private void renderMap(Sprite sprite, RenderingLayers.LayerType type){
         Vector2 viewPosition = View.getViewPosition();
-        int vx = Math.max(0, Math.min((int)viewPosition.x / 16, mapdata[0].length - 12));
-        int vy = Math.max(0, Math.min((int)viewPosition.y / 16, mapdata.length - 16));
+        int vx = Math.max(0, Math.min((int)viewPosition.x / 16, mapdata[0].length - 11));
+        int vy = Math.max(0, Math.min((int)viewPosition.y / 16, mapdata.length - 15));
 
         StageMap<IRenderableComponent> map;
         switch (type){
