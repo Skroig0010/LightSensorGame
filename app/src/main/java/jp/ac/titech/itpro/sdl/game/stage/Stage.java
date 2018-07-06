@@ -13,6 +13,7 @@ import jp.ac.titech.itpro.sdl.game.component.SpriteComponent;
 import jp.ac.titech.itpro.sdl.game.entities.Battery;
 import jp.ac.titech.itpro.sdl.game.entities.Entity;
 import jp.ac.titech.itpro.sdl.game.entities.PowerWay;
+import jp.ac.titech.itpro.sdl.game.entities.PowerWayWall;
 import jp.ac.titech.itpro.sdl.game.entities.SolarPanel;
 import jp.ac.titech.itpro.sdl.game.graphics.FrameBuffer;
 import jp.ac.titech.itpro.sdl.game.GLRenderer;
@@ -48,7 +49,7 @@ public class Stage {
     private List<MessageReceiverComponent> receivers = new ArrayList<>();
     private List<MessageReceiverComponent> notified = new ArrayList<>();
     private List<AnimationController> animationControllers = new ArrayList<>();
-    private StageMap<Entity> wallMap;// 衝突判定用
+    private StageMap<ColliderComponent> wallMap;// 衝突判定用
     private StageMap<IRenderableComponent> renderMapForeGround, renderMapBackGround;
     private List<ColliderComponent> collidableMover = new ArrayList<>();
 
@@ -111,6 +112,11 @@ public class Stage {
                 int id1, id2;
                 int[] switchIds;
                 Entity e;
+                int up;
+                int down;
+                int left;
+                int right;
+                PowerWay.Direction dir;
                 switch(mapdata[y][x]) {
                     case 0:
                         e = new Floor(this, position);
@@ -128,7 +134,7 @@ public class Stage {
                         }else{
                             sprite.controller.setCurrentAnimation("block");
                         }
-                        wallMap.set(x, y, e);
+                        wallMap.set(x, y, (ColliderComponent) e.getComponent("jp.ac.titech.itpro.sdl.game.component.ColliderComponent"));
                         renderMapBackGround.set(x, y, null);
                         renderMapForeGround.set(x, y, (IRenderableComponent)e.getComponent("jp.ac.titech.itpro.sdl.game.component.IRenderableComponent"));
                         break;
@@ -141,7 +147,7 @@ public class Stage {
                         break;
                     case 3:
                         e = new BrightWall(this, position);
-                        wallMap.set(x, y, e);
+                        wallMap.set(x, y, (ColliderComponent) e.getComponent("jp.ac.titech.itpro.sdl.game.component.ColliderComponent"));
                         renderMapBackGround.set(x, y, (IRenderableComponent)e.getComponent("jp.ac.titech.itpro.sdl.game.component.IRenderableComponent"));
                         renderMapForeGround.set(x, y, null);
                         break;
@@ -152,13 +158,14 @@ public class Stage {
                         renderMapForeGround.set(x, y, null);
                         switchIds = mapWithProperty.properties.get(x + y * width).ids;
                         boolean canRelease = mapWithProperty.properties.get(x + y * width).canRelease;
-                        wallMap.set(x, y, new Button(this, position, canRelease, switchIds[0]));
+                        e = new Button(this, position, canRelease, switchIds[0]);
+                        wallMap.set(x, y, (ColliderComponent) e.getComponent("jp.ac.titech.itpro.sdl.game.component.ColliderComponent"));
                         break;
                     case 5:
                         id1 = getPowerId(x, y, false);
                         switchIds = mapWithProperty.properties.get(x + y * width).ids;
                         e = new VanishingWall(this, position, switchIds, id1);
-                        wallMap.set(x, y, e);
+                        wallMap.set(x, y, (ColliderComponent) e.getComponent("jp.ac.titech.itpro.sdl.game.component.ColliderComponent"));
                         renderMapBackGround.set(x, y, null);
                         renderMapForeGround.set(x, y, (IRenderableComponent)e.getComponent("jp.ac.titech.itpro.sdl.game.component.IRenderableComponent"));
                         break;
@@ -172,17 +179,17 @@ public class Stage {
                     case 7:
                         id1 = getPowerId(x, y, true);
                         e = new SolarPanel( this, position, id1);
-                        wallMap.set(x, y, e);
+                        wallMap.set(x, y, (ColliderComponent) e.getComponent("jp.ac.titech.itpro.sdl.game.component.ColliderComponent"));
                         renderMapBackGround.set(x, y, null);
                         renderMapForeGround.set(x, y, (IRenderableComponent)e.getComponent("jp.ac.titech.itpro.sdl.game.component.IRenderableComponent"));
                         break;
                     case 8:
                         id1 = getPowerId(x, y, true);
-                        int up = mapdata[y - 1][x];
-                        int down = mapdata[y + 1][x];
-                        int left = mapdata[y][x - 1];
-                        int right = mapdata[y][x + 1];
-                        PowerWay.Direction dir = PowerWay.Direction.UP_DOWN;
+                        up = mapdata[y - 1][x];
+                        down = mapdata[y + 1][x];
+                        left = mapdata[y][x - 1];
+                        right = mapdata[y][x + 1];
+                        dir = PowerWay.Direction.UP_DOWN;
                         if(relatedOnPower(up) && relatedOnPower(down))dir = PowerWay.Direction.UP_DOWN;
                         if(relatedOnPower(left) && relatedOnPower(right))dir = PowerWay.Direction.LEFT_RIGHT;
                         if(relatedOnPower(up) && relatedOnPower(left))dir = PowerWay.Direction.UP_LEFT;
@@ -198,10 +205,27 @@ public class Stage {
                         id1 = getPowerId(x, y, true);
                         id2 = getPowerId(x, y, false);
                         e = new Battery(this, position, id2, id1);
-                        wallMap.set(x, y, e);
+                        wallMap.set(x, y, (ColliderComponent) e.getComponent("jp.ac.titech.itpro.sdl.game.component.ColliderComponent"));
                         renderMapBackGround.set(x, y, null);
                         renderMapForeGround.set(x, y, (IRenderableComponent)e.getComponent("jp.ac.titech.itpro.sdl.game.component.IRenderableComponent"));
                         break;
+                    case 10:
+                        id1 = getPowerId(x, y, true);
+                        up = mapdata[y - 1][x];
+                        down = mapdata[y + 1][x];
+                        left = mapdata[y][x - 1];
+                        right = mapdata[y][x + 1];
+                        dir = PowerWay.Direction.UP_DOWN;
+                        if(relatedOnPower(up) && relatedOnPower(down))dir = PowerWay.Direction.UP_DOWN;
+                        if(relatedOnPower(left) && relatedOnPower(right))dir = PowerWay.Direction.LEFT_RIGHT;
+                        if(relatedOnPower(up) && relatedOnPower(left))dir = PowerWay.Direction.UP_LEFT;
+                        if(relatedOnPower(up) && relatedOnPower(right))dir = PowerWay.Direction.UP_RIGHT;
+                        if(relatedOnPower(down) && relatedOnPower(left))dir = PowerWay.Direction.DOWN_LEFT;
+                        if(relatedOnPower(down) && relatedOnPower(right))dir = PowerWay.Direction.DOWN_RIGHT;
+                        e = new PowerWayWall(this, position, id1, dir);
+                        wallMap.set(x, y, (ColliderComponent) e.getComponent("jp.ac.titech.itpro.sdl.game.component.ColliderComponent"));
+                        renderMapForeGround.set(x, y, (IRenderableComponent)e.getComponent("jp.ac.titech.itpro.sdl.game.component.IRenderableComponent"));
+                        renderMapBackGround.set(x, y, null);
                 }
             }
         }
@@ -211,7 +235,7 @@ public class Stage {
     }
 
     private boolean relatedOnPower(int id){
-        return id == 5 || id == 7 || id == 8 || id == 9;
+        return id == 5 || id == 7 || id == 8 || id == 9 || id == 10;
     }
 
     private int getPowerId(int x, int y, boolean isOutput){
@@ -268,7 +292,7 @@ public class Stage {
     // バッテリーが合った場合powerIdMapに書き込むという副作用あり
     private boolean isUnreachedPowerWay(int x, int y){
         int mapId = mapdata[y][x];
-        if (mapId == 7 || mapId == 8) {
+        if (mapId == 7 || mapId == 8 || mapId == 10) {
             // ソーラーパネルか電源の道なら探索を続ける
             if (powerIdMap[y][x] == 0){
                 return true;
@@ -387,7 +411,7 @@ public class Stage {
             for (int y = moverY - 1; y <= moverY + 1; y++) {
                 for (int x = moverX - 1; x <= moverX + 1; x++) {
                     if(wallMap.get(x, y) == null)continue;
-                    ColliderComponent collider = wallMap.get(x, y).getComponent("jp.ac.titech.itpro.sdl.game.component.ColliderComponent");
+                    ColliderComponent collider = wallMap.get(x, y);
                     if(collider != null) {
                         if (mover.on(collider)) {
                             onCollide(mover, collider);
