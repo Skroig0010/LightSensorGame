@@ -1,5 +1,6 @@
 package jp.ac.titech.itpro.sdl.game.component;
 
+import android.util.Log;
 import android.widget.Toast;
 
 import java.util.HashSet;
@@ -41,7 +42,7 @@ public class ColliderComponent implements IComponent, ITransformable{
         // TransformComponentが書き換わったとき自動で位置を変更してくれるようにする
         transform = parent.getComponent("jp.ac.titech.itpro.sdl.game.component.TransformComponent");
         if(transform == null){
-            Toast.makeText(MainActivity.instance, "Colliderを登録したEntity内にTransformが見つかりません", Toast.LENGTH_LONG);
+            Log.e("error",  "Colliderを登録したEntity(" + getParent() + ")内にTransformが見つかりません");
             return;
         }
         setTransformParent(transform);

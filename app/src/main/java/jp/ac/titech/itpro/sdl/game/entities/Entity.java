@@ -1,5 +1,7 @@
 package jp.ac.titech.itpro.sdl.game.entities;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,5 +52,20 @@ public abstract class Entity {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public <T extends IComponent> boolean hasComponent(String typeName){
+        try {
+            Class<?> cls = Class.forName(typeName);
+            for(IComponent component : components){
+                if(cls.isInstance(component)){
+                    return true;
+                }
+            }
+        } catch (ClassNotFoundException e) {
+            Log.e("error", e.getMessage());
+            e.printStackTrace();
+        }
+        return false;
     }
 }

@@ -1,7 +1,9 @@
 package jp.ac.titech.itpro.sdl.game.component;
 
+import jp.ac.titech.itpro.sdl.game.entities.Player;
 import jp.ac.titech.itpro.sdl.game.graphics.sprite.Sprite;
 import jp.ac.titech.itpro.sdl.game.entities.Entity;
+import jp.ac.titech.itpro.sdl.game.math.Vector2;
 import jp.ac.titech.itpro.sdl.game.stage.RenderingLayers;
 import jp.ac.titech.itpro.sdl.game.stage.Stage;
 
@@ -40,9 +42,14 @@ public class SimpleRenderableComponent implements IRenderableComponent {
 
     @Override
     public void render(Sprite sprite) {
+
+        if(getParent() instanceof Player){
+            System.out.println();
+        }
+        Vector2 position = transform.getGlobal();
         sprite.render(
-                transform.getGlobal().x,
-                transform.getGlobal().y,
+                position.x,
+                position.y,
                 this.sprite.getTexture(),
                 this.sprite.rect
         );

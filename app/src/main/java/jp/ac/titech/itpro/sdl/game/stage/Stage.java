@@ -12,8 +12,10 @@ import jp.ac.titech.itpro.sdl.game.component.LightSensorComponent;
 import jp.ac.titech.itpro.sdl.game.component.SpriteComponent;
 import jp.ac.titech.itpro.sdl.game.entities.Battery;
 import jp.ac.titech.itpro.sdl.game.entities.Entity;
+import jp.ac.titech.itpro.sdl.game.entities.MovableFloor;
 import jp.ac.titech.itpro.sdl.game.entities.PowerWay;
 import jp.ac.titech.itpro.sdl.game.entities.PowerWayWall;
+import jp.ac.titech.itpro.sdl.game.entities.RespawnFloor;
 import jp.ac.titech.itpro.sdl.game.entities.SolarPanel;
 import jp.ac.titech.itpro.sdl.game.graphics.FrameBuffer;
 import jp.ac.titech.itpro.sdl.game.GLRenderer;
@@ -118,9 +120,15 @@ public class Stage {
                 int right;
                 PowerWay.Direction dir;
                 switch(mapdata[y][x]) {
+                    case -1:
+                        // なにもない
+                        wallMap.set(x, y, null);
+                        renderMapForeGround.set(x, y, null);
+                        renderMapBackGround.set(x, y, null);
+                        break;
                     case 0:
                         e = new Floor(this, position);
-                        wallMap.set(x, y, null);
+                        wallMap.set(x, y, (ColliderComponent) e.getComponent("jp.ac.titech.itpro.sdl.game.component.ColliderComponent"));
                         renderMapBackGround.set(x, y, (IRenderableComponent)e.getComponent("jp.ac.titech.itpro.sdl.game.component.IRenderableComponent"));
                         renderMapForeGround.set(x, y, null);
                         break;
@@ -140,10 +148,11 @@ public class Stage {
                         break;
                     case 2:
                         e = new Floor(this, position);
-                        wallMap.set(x, y, null);
+                        wallMap.set(x, y, (ColliderComponent) e.getComponent("jp.ac.titech.itpro.sdl.game.component.ColliderComponent"));
                         renderMapBackGround.set(x, y, (IRenderableComponent)e.getComponent("jp.ac.titech.itpro.sdl.game.component.IRenderableComponent"));
                         renderMapForeGround.set(x, y, null);
-                        new Player(this, position);
+                        e = new Player(this, position);
+                        collidableMover.add((ColliderComponent) e.getComponent("jp.ac.titech.itpro.sdl.game.component.ColliderComponent"));
                         break;
                     case 3:
                         e = new BrightWall(this, position);
@@ -153,13 +162,13 @@ public class Stage {
                         break;
                     case 4:
                         e = new Floor(this, position);
-                        wallMap.set(x, y, null);
+                        wallMap.set(x, y, (ColliderComponent) e.getComponent("jp.ac.titech.itpro.sdl.game.component.ColliderComponent"));
                         renderMapBackGround.set(x, y, (IRenderableComponent)e.getComponent("jp.ac.titech.itpro.sdl.game.component.IRenderableComponent"));
                         renderMapForeGround.set(x, y, null);
                         switchIds = mapWithProperty.properties.get(x + y * width).ids;
                         boolean canRelease = mapWithProperty.properties.get(x + y * width).canRelease;
                         e = new Button(this, position, canRelease, switchIds[0]);
-                        wallMap.set(x, y, (ColliderComponent) e.getComponent("jp.ac.titech.itpro.sdl.game.component.ColliderComponent"));
+                        collidableMover.add((ColliderComponent) e.getComponent("jp.ac.titech.itpro.sdl.game.component.ColliderComponent"));
                         break;
                     case 5:
                         id1 = getPowerId(x, y, false);
@@ -170,11 +179,12 @@ public class Stage {
                         renderMapForeGround.set(x, y, (IRenderableComponent)e.getComponent("jp.ac.titech.itpro.sdl.game.component.IRenderableComponent"));
                         break;
                     case 6:
-                        new MovableBox( position, this);
                         e = new Floor(this, position);
-                        wallMap.set(x, y, null);
+                        wallMap.set(x, y, (ColliderComponent) e.getComponent("jp.ac.titech.itpro.sdl.game.component.ColliderComponent"));
                         renderMapBackGround.set(x, y, (IRenderableComponent)e.getComponent("jp.ac.titech.itpro.sdl.game.component.IRenderableComponent"));
                         renderMapForeGround.set(x, y, null);
+                        e = new MovableBox( position, this);
+                        collidableMover.add((ColliderComponent) e.getComponent("jp.ac.titech.itpro.sdl.game.component.ColliderComponent"));
                         break;
                     case 7:
                         id1 = getPowerId(x, y, true);
@@ -226,6 +236,22 @@ public class Stage {
                         wallMap.set(x, y, (ColliderComponent) e.getComponent("jp.ac.titech.itpro.sdl.game.component.ColliderComponent"));
                         renderMapForeGround.set(x, y, (IRenderableComponent)e.getComponent("jp.ac.titech.itpro.sdl.game.component.IRenderableComponent"));
                         renderMapBackGround.set(x, y, null);
+                        break;
+                    case 11:
+                        // リス地点
+                        e = new RespawnFloor(this, position);
+                        wallMap.set(x, y, (ColliderComponent) e.getComponent("jp.ac.titech.itpro.sdl.game.component.ColliderComponent"));
+                        renderMapBackGround.set(x, y, (IRenderableComponent)e.getComponent("jp.ac.titech.itpro.sdl.game.component.IRenderableComponent"));
+                        renderMapForeGround.set(x, y, null);
+                        break;
+                    case 12:
+                        // 動く床
+                        e = new MovableFloor(this, position);
+                        wallMap.set(x, y, null);
+                        collidableMover.add((ColliderComponent) e.getComponent("jp.ac.titech.itpro.sdl.game.component.ColliderComponent"));
+                        renderMapBackGround.set(x, y, null);
+                        renderMapForeGround.set(x, y, null);
+                        break;
                 }
             }
         }
@@ -318,12 +344,6 @@ public class Stage {
         }else if(component instanceof IUpdatableComponent){
             updatables.add((IUpdatableComponent)component);
         }else if(component instanceof ColliderComponent){
-
-            // 親が動くもののEntityだったらcollidableMoverに入れる
-            if(component.getParent() instanceof Player || component.getParent() instanceof MovableBox){
-                collidableMover.add((ColliderComponent) component);
-            }
-
             collidables.add((ColliderComponent)component);
         }else if(component instanceof MessageReceiverComponent){
             receivers.add((MessageReceiverComponent)component);

@@ -4,6 +4,7 @@ import jp.ac.titech.itpro.sdl.game.R;
 import jp.ac.titech.itpro.sdl.game.Rect;
 import jp.ac.titech.itpro.sdl.game.component.BrightRenderableComponent;
 import jp.ac.titech.itpro.sdl.game.component.ColliderComponent;
+import jp.ac.titech.itpro.sdl.game.component.FallComponent;
 import jp.ac.titech.itpro.sdl.game.component.IRenderableComponent;
 import jp.ac.titech.itpro.sdl.game.component.IUpdatableComponent;
 import jp.ac.titech.itpro.sdl.game.component.NormalUpdatableComponent;
@@ -48,13 +49,8 @@ public class Player extends Entity{
                 // 極座標系
                 double rot = Math.atan2(touch.getDirection().y, touch.getDirection().x);
                 float len = touch.getDirection().x * touch.getDirection().x + touch.getDirection().y * touch.getDirection().y;
-                // マスに沿った位置にいるなら移動を許可
                 Vector2 position = transform.getLocal();
-                // int diffX = (int)position.x % 16;
-                // int diffY = (int)position.y % 16;
-                // if(diffX == 0 && diffY == 0) {
                 move(rot, len);
-                // }
 
                 Vector2 dir = to.sub(position);
                 float veloc = len / 50;
@@ -98,7 +94,32 @@ public class Player extends Entity{
         addComponent(touch);
         addComponent(update);
         addComponent(render);
+        final FallComponent fall = new FallComponent(position, transform, this);
+        addComponent(fall);
         collider = new ColliderComponent(new Vector2(16, 16), false, 1, this){
+            private int floorNum = 0;
+            @Override
+            public void enterCollide(ColliderComponent other){
+                if(other.getParent() instanceof Floor
+                        || other.getParent() instanceof MovableFloor
+                        || other.getParent() instanceof RespawnFloor){
+                    floorNum++;
+                }
+            }
+
+            @Override
+            public void exitCollide(ColliderComponent other){
+                if(other.getParent() instanceof Floor
+                        || other.getParent() instanceof MovableFloor
+                        || other.getParent() instanceof RespawnFloor){
+                    floorNum--;
+                    // 0になったら落ちる
+                    if(floorNum <= 0){
+                        fall.fall();
+                    }
+                }
+            }
+
             @Override
             public void onCollide(ColliderComponent other){
                 View.setTargetPosition(transform.getGlobal().sub(72, 112));
