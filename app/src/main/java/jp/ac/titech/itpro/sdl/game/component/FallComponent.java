@@ -23,6 +23,10 @@ public class FallComponent implements IComponent {
         this.respawnPosition = respawnPosition;
     }
 
+    public Vector2 getRespawnPosition() {
+        return respawnPosition;
+    }
+
     @Override
     public Entity getParent() {
         return parent;

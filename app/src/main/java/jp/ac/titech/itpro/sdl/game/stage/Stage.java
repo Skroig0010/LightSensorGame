@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 
+import jp.ac.titech.itpro.sdl.game.component.FallComponent;
 import jp.ac.titech.itpro.sdl.game.component.LightSensorComponent;
 import jp.ac.titech.itpro.sdl.game.component.SpriteComponent;
 import jp.ac.titech.itpro.sdl.game.entities.Battery;
@@ -40,6 +41,7 @@ import jp.ac.titech.itpro.sdl.game.entities.Wall;
 import jp.ac.titech.itpro.sdl.game.graphics.sprite.EmoSprite;
 import jp.ac.titech.itpro.sdl.game.math.Vector2;
 import jp.ac.titech.itpro.sdl.game.messages.Message;
+import jp.ac.titech.itpro.sdl.game.scenes.SceneStage;
 import jp.ac.titech.itpro.sdl.game.util.JsonReader;
 import jp.ac.titech.itpro.sdl.game.util.MapWithProperty;
 import jp.ac.titech.itpro.sdl.game.view.View;
@@ -54,11 +56,13 @@ public class Stage {
     private StageMap<ColliderComponent> wallMap;// 衝突判定用
     private StageMap<IRenderableComponent> renderMapForeGround, renderMapBackGround;
     private List<ColliderComponent> collidableMover = new ArrayList<>();
+    private Player player;
 
     private int[][] mapdata;
     private int[][] powerIdMap;
     private int powerId = 1;
 
+    private SceneStage sceneStage;
 
     // 描画関連
     private RenderingLayers layers = new RenderingLayers();
@@ -71,7 +75,8 @@ public class Stage {
     private FrameBuffer postFrameBuffer;
     private final int fbSize = 128;
 
-    public Stage(){
+    public Stage(SceneStage sceneStage, Vector2 respawnPosition){
+        this.sceneStage = sceneStage;
         emoSprite = new EmoSprite();
         lSprite = new LightSprite();
         gaussSprite = new GaussSprite();
@@ -151,7 +156,13 @@ public class Stage {
                         wallMap.set(x, y, (ColliderComponent) e.getComponent("jp.ac.titech.itpro.sdl.game.component.ColliderComponent"));
                         renderMapBackGround.set(x, y, (IRenderableComponent)e.getComponent("jp.ac.titech.itpro.sdl.game.component.IRenderableComponent"));
                         renderMapForeGround.set(x, y, null);
-                        e = new Player(this, position);
+                        if(respawnPosition != null) {
+                            player = new Player(this, respawnPosition);
+                            ((FallComponent) player.getComponent("jp.ac.titech.itpro.sdl.game.component.FallComponent")).setRespawnPosition(respawnPosition);
+                        }else{
+                            player = new Player(this, position);
+                        }
+                        e = player;
                         collidableMover.add((ColliderComponent) e.getComponent("jp.ac.titech.itpro.sdl.game.component.ColliderComponent"));
                         break;
                     case 3:
@@ -395,9 +406,7 @@ public class Stage {
 
         // メッセージを処理
         isProcessingNotified = true;
-        for(MessageReceiverComponent receiver : notified){
-            receiver.processMessages();
-        }
+        processNotified();
         isProcessingNotified = false;
         notified.clear();
         notified.addAll(delayNotified);
@@ -474,9 +483,13 @@ public class Stage {
     // notified処理中はnotifyできない。1F遅らせる
     private boolean isProcessingNotified = false;
     private List<MessageReceiverComponent> delayNotified = new ArrayList<>();
+    private Queue<Message> messageQueue = new ArrayDeque<>();
 
     // 全体通知
     public void notifyAll(Message message){
+        // ステージ自身もメッセージを受け取る
+        messageQueue.add(message);
+
         // 全てのMessageQueueComponentに通知
         for(MessageReceiverComponent receiver : receivers){
             receiver.notify(message);
@@ -484,10 +497,23 @@ public class Stage {
     }
 
     public void processNotified(){
+        // ステージ自身が受け取ったメッセージを処理
+        for(Message msg : messageQueue){
+            processMessage(msg);
+        }
+        messageQueue.clear();
+        // 各receiverのメッセージを処理
         for (MessageReceiverComponent receiver : notified){
             receiver.processMessages();
         }
         notified.clear();
+    }
+
+    private void processMessage(Message msg){
+        if(msg instanceof Message.RESET_STAGE){
+            Vector2 respawnPosition = (Vector2)msg.getArgs()[0];
+            sceneStage.respawn(respawnPosition);
+        }
     }
 
     // MessageQueueComponentだけが使う

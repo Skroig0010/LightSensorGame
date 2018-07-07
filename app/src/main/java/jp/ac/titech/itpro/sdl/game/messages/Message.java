@@ -24,6 +24,13 @@ public class Message {
             super(args);
         }
     }
+    public class RESET_STAGE extends Message{
+        public RESET_STAGE(Object[] args){
+            super(args);
+        }
+    }
+
+
     private Object[] args;
 
     private Message(Object[] args){

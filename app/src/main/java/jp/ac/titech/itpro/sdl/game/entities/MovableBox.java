@@ -3,6 +3,7 @@ package jp.ac.titech.itpro.sdl.game.entities;
 import jp.ac.titech.itpro.sdl.game.R;
 import jp.ac.titech.itpro.sdl.game.Rect;
 import jp.ac.titech.itpro.sdl.game.component.ColliderComponent;
+import jp.ac.titech.itpro.sdl.game.component.FallComponent;
 import jp.ac.titech.itpro.sdl.game.component.IUpdatableComponent;
 import jp.ac.titech.itpro.sdl.game.component.NormalUpdatableComponent;
 import jp.ac.titech.itpro.sdl.game.component.SimpleRenderableComponent;
@@ -20,7 +21,31 @@ public class MovableBox extends Entity {
         SpriteComponent sprite = new SpriteComponent(R.drawable.movablebox, 16, 16, this);
         addComponent(transform);
         addComponent(sprite);
+        final FallComponent fall = new FallComponent(position, transform, this);
+        addComponent(fall);
         final ColliderComponent collider = new ColliderComponent(new Vector2(16,16), false, 1, this){
+            private int floorNum = 0;
+            @Override
+            public void enterCollide(ColliderComponent other){
+                if(other.getParent() instanceof Floor
+                        || other.getParent() instanceof MovableFloor
+                        || other.getParent() instanceof RespawnFloor){
+                    floorNum++;
+                }
+            }
+
+            @Override
+            public void exitCollide(ColliderComponent other){
+                if(other.getParent() instanceof Floor
+                        || other.getParent() instanceof MovableFloor
+                        || other.getParent() instanceof RespawnFloor){
+                    floorNum--;
+                    // 0になったら落ちる
+                    if(floorNum <= 0){
+                        fall.fall();
+                    }
+                }
+            }
             @Override
             public void onCollide(ColliderComponent other){
                 if(other.getParent() instanceof Player) {

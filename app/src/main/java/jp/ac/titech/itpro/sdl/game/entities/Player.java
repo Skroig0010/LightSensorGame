@@ -14,6 +14,7 @@ import jp.ac.titech.itpro.sdl.game.component.SpriteComponent;
 import jp.ac.titech.itpro.sdl.game.component.TouchControllerComponent;
 import jp.ac.titech.itpro.sdl.game.graphics.animation.AnimationController;
 import jp.ac.titech.itpro.sdl.game.math.Vector2;
+import jp.ac.titech.itpro.sdl.game.messages.Message;
 import jp.ac.titech.itpro.sdl.game.stage.RenderingLayers;
 import jp.ac.titech.itpro.sdl.game.stage.Stage;
 import jp.ac.titech.itpro.sdl.game.view.View;
@@ -27,7 +28,7 @@ public class Player extends Entity{
     IRenderableComponent render;
     ColliderComponent collider;
 
-    public Player(Stage stage, Vector2 position){
+    public Player(final Stage stage, Vector2 position){
         super(stage);
         transform = new TransformComponent(position,this);
         sprite = new SpriteComponent(R.drawable.human, 16,16, this);
@@ -115,7 +116,7 @@ public class Player extends Entity{
                     floorNum--;
                     // 0になったら落ちる
                     if(floorNum <= 0){
-                        fall.fall();
+                        stage.notifyAll(new Message().new RESET_STAGE(new Object[]{((FallComponent)getComponent("jp.ac.titech.itpro.sdl.game.component.FallComponent")).getRespawnPosition()}));
                     }
                 }
             }
