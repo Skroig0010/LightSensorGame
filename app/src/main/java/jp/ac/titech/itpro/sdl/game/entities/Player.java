@@ -66,19 +66,19 @@ public class Player extends Entity{
                 if(len > THRESHOLD_FLICK_VELOCITY) {
                         if (rot >= Math.PI / 4 && rot < Math.PI * 3 / 4) {
                             // 上向き
-                            to = new Vector2((int)(currPos.x + 8) / 16 * 16, (int)(currPos.y + 8 - 16) / 16 * 16);
+                            to = new Vector2((int)(currPos.x + 8) / 16 * 16, (int)(currPos.y + 8 - 128) / 16 * 16);
                             sprite.controller.setCurrentAnimation("back");
                         } else if (rot >= Math.PI * 3 / 4 && rot < Math.PI * 5 / 4) {
                             // 右向き
-                            to = new Vector2((int)(currPos.x + 8 + 16) / 16 * 16, (int)(currPos.y + 8) / 16 * 16);
+                            to = new Vector2((int)(currPos.x + 8 + 128) / 16 * 16, (int)(currPos.y + 8) / 16 * 16);
                             sprite.controller.setCurrentAnimation("right");
                         } else if (rot >= Math.PI * 5 / 4 && rot < Math.PI * 7 / 4) {
                             // 下向き
-                            to = new Vector2((int)(currPos.x + 8) / 16 * 16, (int)(currPos.y + 8 + 16) / 16 * 16);
+                            to = new Vector2((int)(currPos.x + 8) / 16 * 16, (int)(currPos.y + 8 + 128) / 16 * 16);
                             sprite.controller.setCurrentAnimation("front");
                         } else {
                             // 左向き
-                            to = new Vector2((int)(currPos.x + 8 - 16) / 16 * 16, (int)(currPos.y + 8) / 16 * 16);
+                            to = new Vector2((int)(currPos.x + 8 - 128) / 16 * 16, (int)(currPos.y + 8) / 16 * 16);
                             sprite.controller.setCurrentAnimation("left");
                         }
                 }else{
