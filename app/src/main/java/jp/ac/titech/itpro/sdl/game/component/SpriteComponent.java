@@ -28,6 +28,8 @@ public class SpriteComponent implements IComponent {
             options.inScaled = false;
             Bitmap bmp = BitmapFactory.decodeResource(res, id, options);
             Texture texture = new Texture(bmp);
+            // bitmapの破棄
+            bmp.recycle();
             texture.setFilter(Texture.FilterType.NEAREST);
             textures.put(id, texture);
         }

@@ -1,6 +1,7 @@
 package jp.ac.titech.itpro.sdl.game.entities;
 
 import jp.ac.titech.itpro.sdl.game.R;
+import jp.ac.titech.itpro.sdl.game.component.ColliderComponent;
 import jp.ac.titech.itpro.sdl.game.component.MessageReceiverComponent;
 import jp.ac.titech.itpro.sdl.game.component.SimpleRenderableComponent;
 import jp.ac.titech.itpro.sdl.game.component.SpriteComponent;
@@ -38,6 +39,7 @@ public class PowerWay extends Entity {
         sprite.controller.setCurrentAnimation("on");
         addComponent(transform);
         addComponent(sprite);
+        addComponent(new ColliderComponent(new Vector2(16, 16), this));
         addComponent(new SimpleRenderableComponent(transform, sprite, RenderingLayers.LayerType.BACK_GROUND, stage, this));
         addComponent(new MessageReceiverComponent(this, stage){
 

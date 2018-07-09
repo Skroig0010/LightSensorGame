@@ -218,7 +218,7 @@ public class Stage {
                         if(relatedOnPower(down) && relatedOnPower(left))dir = PowerWay.Direction.DOWN_LEFT;
                         if(relatedOnPower(down) && relatedOnPower(right))dir = PowerWay.Direction.DOWN_RIGHT;
                         e = new PowerWay(this, position, id1, dir);
-                        wallMap.set(x, y, null);
+                        wallMap.set(x, y, (ColliderComponent) e.getComponent("jp.ac.titech.itpro.sdl.game.component.ColliderComponent"));
                         renderMapBackGround.set(x, y, (IRenderableComponent)e.getComponent("jp.ac.titech.itpro.sdl.game.component.IRenderableComponent"));
                         renderMapForeGround.set(x, y, null);
                         break;
@@ -626,7 +626,7 @@ public class Stage {
     private void renderMap(Sprite sprite, RenderingLayers.LayerType type){
         Vector2 viewPosition = View.getViewPosition();
         int vx = Math.max(0, Math.min((int)viewPosition.x / 16, mapdata[0].length - 11));
-        int vy = Math.max(0, Math.min((int)viewPosition.y / 16, mapdata.length - 15));
+        int vy = Math.max(0, Math.min((int)viewPosition.y / 16, mapdata.length - 16));
 
         StageMap<IRenderableComponent> map;
         switch (type){
@@ -639,7 +639,7 @@ public class Stage {
             default:
                 return;
         }
-        for (int y = vy; y < vy+ 15; y++) {
+        for (int y = vy; y < vy + 16; y++) {
             for (int x = vx; x < vx + 11; x++) {
                 IRenderableComponent r = map.get(x, y);
                 if(r != null)r.render(sprite);

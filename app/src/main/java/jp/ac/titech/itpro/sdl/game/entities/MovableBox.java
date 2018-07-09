@@ -30,6 +30,7 @@ public class MovableBox extends Entity {
                 if(other.getParent() instanceof Floor
                         || other.getParent() instanceof MovableFloor
                         || other.getParent() instanceof RespawnFloor
+                        || other.getParent() instanceof PowerWay
                         || other.getParent() instanceof VanishingWall){
                     floorNum++;
                 }
@@ -40,6 +41,7 @@ public class MovableBox extends Entity {
                 if(other.getParent() instanceof Floor
                         || other.getParent() instanceof MovableFloor
                         || other.getParent() instanceof RespawnFloor
+                        || other.getParent() instanceof PowerWay
                         || other.getParent() instanceof VanishingWall){
                     floorNum--;
                     // 0になったら落ちる
