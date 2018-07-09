@@ -28,25 +28,29 @@ public class Button extends Entity {
             private int colliderNum = 0;
 
             @Override
-            public void enterCollide(ColliderComponent other){
-                colliderNum++;
-                if(colliderNum == 1) {
-                    // プレイヤーに踏まれたら
-                    Message msg = new Message().new BUTTON_PRESSED(new Object[]{param.id});
-                    stage.notifyAll(msg);
-                    sprite.controller.setCurrentAnimation("pressed");
+            public void enterCollide (ColliderComponent other){
+                if(other.getParent() instanceof Player || other.getParent() instanceof MovableBox) {
+                    colliderNum++;
+                    if (colliderNum == 1) {
+                        // プレイヤーに踏まれたら
+                        Message msg = new Message().new BUTTON_PRESSED(new Object[]{param.id});
+                        stage.notifyAll(msg);
+                        sprite.controller.setCurrentAnimation("pressed");
+                    }
                 }
             }
 
             @Override
             public void exitCollide(ColliderComponent other){
-                // プレイヤーが押していたのが離れたら
-                if(param.canRelease){
-                    colliderNum--;
-                    if(colliderNum == 0) {
-                        Message msg = new Message().new BUTTON_RELEASED(new Object[]{param.id});
-                        stage.notifyAll(msg);
-                        sprite.controller.setCurrentAnimation("released");
+                if(other.getParent() instanceof Player || other.getParent() instanceof MovableBox) {
+                    // プレイヤーが押していたのが離れたら
+                    if (param.canRelease) {
+                        colliderNum--;
+                        if (colliderNum == 0) {
+                            Message msg = new Message().new BUTTON_RELEASED(new Object[]{param.id});
+                            stage.notifyAll(msg);
+                            sprite.controller.setCurrentAnimation("released");
+                        }
                     }
                 }
             }

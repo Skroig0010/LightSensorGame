@@ -29,7 +29,8 @@ public class MovableBox extends Entity {
             public void enterCollide(ColliderComponent other){
                 if(other.getParent() instanceof Floor
                         || other.getParent() instanceof MovableFloor
-                        || other.getParent() instanceof RespawnFloor){
+                        || other.getParent() instanceof RespawnFloor
+                        || other.getParent() instanceof VanishingWall){
                     floorNum++;
                 }
             }
@@ -38,7 +39,8 @@ public class MovableBox extends Entity {
             public void exitCollide(ColliderComponent other){
                 if(other.getParent() instanceof Floor
                         || other.getParent() instanceof MovableFloor
-                        || other.getParent() instanceof RespawnFloor){
+                        || other.getParent() instanceof RespawnFloor
+                        || other.getParent() instanceof VanishingWall){
                     floorNum--;
                     // 0になったら落ちる
                     if(floorNum <= 0){
