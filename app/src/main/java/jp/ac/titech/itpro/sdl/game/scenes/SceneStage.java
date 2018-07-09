@@ -21,6 +21,8 @@ public class SceneStage implements IScene {
     public void render(Sprite sprite){
         isRendering = true;
         stage.render(sprite);
+
+        // リスポーン処理はレンダリングが終わったら
         if(respawn){
             stage = new Stage(this, respawnPoint);
             respawn = false;

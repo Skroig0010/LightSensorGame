@@ -405,6 +405,11 @@ public class Stage {
             setBrightness(false);
         }
 
+        // BackKeyが押されたらリスポーンする
+        if(MainActivity.instance.getBackKey()){
+            notifyAll(new Message().new RESET_STAGE(new Object[]{((FallComponent)player.getComponent("jp.ac.titech.itpro.sdl.game.component.FallComponent")).getRespawnPosition()}));
+        }
+
         // メッセージを処理
         isProcessingNotified = true;
         processNotified();

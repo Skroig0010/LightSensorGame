@@ -8,6 +8,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.widget.Toast;
 
@@ -27,6 +28,9 @@ public class MainActivity extends Activity implements SensorEventListener{
     private SensorManager sensorManager;
     private Sensor lightSensor;
     private float brightness = 1;
+
+    // 戻るボタン
+    private boolean backKey;
 
     public static MainActivity instance;
 
@@ -82,6 +86,28 @@ public class MainActivity extends Activity implements SensorEventListener{
             default:
                 return false;
         }
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if(keyCode == KeyEvent.KEYCODE_BACK){
+            backKey = true;
+            return false;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event){
+        if(keyCode == KeyEvent.KEYCODE_BACK){
+            backKey = false;
+            return false;
+        }
+        return super.onKeyUp(keyCode, event);
+    }
+
+    public boolean getBackKey(){
+        return backKey;
     }
 
     @Override
