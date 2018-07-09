@@ -15,6 +15,7 @@ public class View {
             shakeDiff = new Vector2();
         }
         viewPosition = targetPosition.add(shakeDiff);
+        viewPosition = new Vector2((int)viewPosition.x, (int)viewPosition.y);
     }
 
     public static void setShake(boolean _shake) {
