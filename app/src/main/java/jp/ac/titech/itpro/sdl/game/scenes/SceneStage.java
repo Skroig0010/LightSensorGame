@@ -11,6 +11,7 @@ public class SceneStage implements IScene {
     private Vector2 respawnPoint = null;
     private boolean respawn = false;
     public SceneStage(){
+        // リス地点のきれいな渡し方が思いつかなかったので仮に引数で渡しておく
         stage = new Stage(this, respawnPoint);
     }
 

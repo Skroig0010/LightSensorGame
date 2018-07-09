@@ -255,15 +255,16 @@ public class Stage {
                         renderMapBackGround.set(x, y, (IRenderableComponent)e.getComponent("jp.ac.titech.itpro.sdl.game.component.IRenderableComponent"));
                         renderMapForeGround.set(x, y, null);
                         break;
-                    case 12:
-                        // 動く床
-                        e = new MovableFloor(this, position);
-                        wallMap.set(x, y, null);
-                        collidableMover.add((ColliderComponent) e.getComponent("jp.ac.titech.itpro.sdl.game.component.ColliderComponent"));
-                        renderMapBackGround.set(x, y, null);
-                        renderMapForeGround.set(x, y, null);
-                        break;
                 }
+            }
+        }
+
+        // プロパティの中から動く床を取得
+        for (MapWithProperty.Property property : mapWithProperty.properties.values()) {
+            if(property.polyLine != null){
+                // 動く床の作成
+                Entity e = new MovableFloor(this, property.polyLine);
+                collidableMover.add((ColliderComponent) e.getComponent("jp.ac.titech.itpro.sdl.game.component.ColliderComponent"));
             }
         }
         gaussianFrameBuffer1 = new FrameBuffer(fbSize, fbSize);
