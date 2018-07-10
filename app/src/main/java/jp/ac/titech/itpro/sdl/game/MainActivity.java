@@ -46,7 +46,7 @@ public class MainActivity extends Activity implements SensorEventListener{
         glSurfaceView.setEGLContextClientVersion(2);
         mRenderer = new GLRenderer(this);
         glSurfaceView.setRenderer(mRenderer);
-        glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+        glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
         setContentView(glSurfaceView);
 
         // 光センサー初期化

@@ -8,7 +8,12 @@ import jp.ac.titech.itpro.sdl.game.entities.Entity;
 public class StageMap<T>{
     private List<List<T>> data;
 
+    public final int width;
+    public final int height;
+
     public StageMap(int width, int height){
+        this.width = width;
+        this.height = height;
         data = new ArrayList<List<T>>(height);
         for(int i = 0; i < height; i++){
             data.add(new ArrayList<T>(width));

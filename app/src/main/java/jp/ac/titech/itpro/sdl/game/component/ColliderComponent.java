@@ -151,4 +151,9 @@ public class ColliderComponent implements IComponent, ITransformable{
     public Vector2 getLocal() {
         return position;
     }
+
+    @Override
+    public ITransformable getTransformParent(){
+        return transformParent;
+    }
 }

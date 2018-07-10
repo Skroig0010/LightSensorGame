@@ -68,8 +68,10 @@ public class MovableFloor extends Entity {
         addComponent(new SimpleRenderableComponent(transform, sprite, RenderingLayers.LayerType.CHARACTER_UNDER, stage, this));
         addComponent(new ColliderComponent(new Vector2(4, 4), new Vector2(8, 8), this){
             @Override
-            public void enterCollide(ColliderComponent other){
-                if(other.getParent().hasComponent("jp.ac.titech.itpro.sdl.game.component.FallComponent")){
+            public void onCollide(ColliderComponent other){
+                if(other.getParent().hasComponent("jp.ac.titech.itpro.sdl.game.component.FallComponent")
+                        && other.getTransform().getTransformParent() == null){
+                    // すでに他の床が親でなければOK
                     // 相対位置を取得
                     other.getTransform().setLocal(other.getGlobal().sub(transform.getGlobal()));
                     // 親に設定
@@ -79,7 +81,8 @@ public class MovableFloor extends Entity {
 
             @Override
             public void exitCollide(ColliderComponent other) {
-                if (other.getParent().hasComponent("jp.ac.titech.itpro.sdl.game.component.FallComponent")) {
+                if (other.getParent().hasComponent("jp.ac.titech.itpro.sdl.game.component.FallComponent")
+                        && other.getTransform().getTransformParent() == transform) {
                     // 親から解除
                     other.getTransform().setTransformParent(null);
                     // 絶対位置を取得

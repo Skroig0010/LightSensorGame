@@ -33,7 +33,7 @@ public class GLRenderer implements GLSurfaceView.Renderer, Runnable {
         // ここから下に作らないといけない
         scene = new SceneStage();
         thread = new Thread(this);
-        thread.start();
+        // thread.start();
     }
 
     @Override
@@ -53,6 +53,7 @@ public class GLRenderer implements GLSurfaceView.Renderer, Runnable {
 
     @Override
     public void onDrawFrame(GL10 unused) {
+        scene.update();
         scene.render(sprite);
     }
 
@@ -60,7 +61,6 @@ public class GLRenderer implements GLSurfaceView.Renderer, Runnable {
     public void run() {
         while(thread != null){
             long x = System.nanoTime();
-            scene.update();
             MainActivity.instance.glSurfaceView.requestRender();
             while (System.nanoTime() - x < 16666666 || scene.isRendering()){}
         }

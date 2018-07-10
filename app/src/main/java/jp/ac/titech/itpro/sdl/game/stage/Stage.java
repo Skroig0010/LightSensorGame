@@ -417,6 +417,10 @@ public class Stage {
         notified.clear();
         notified.addAll(delayNotified);
         delayNotified.clear();
+        for(Message msg : delayMessageQueue) {
+            notifyAll(msg);
+        }
+        delayMessageQueue.clear();
 
         // 全UpdatableComponentの更新
         for (IUpdatableComponent updatable:updatables ) {
@@ -445,6 +449,7 @@ public class Stage {
             int moverY = (int)(mover.getGlobal().y + 8) / 16;
             for (int y = moverY - 1; y <= moverY + 1; y++) {
                 for (int x = moverX - 1; x <= moverX + 1; x++) {
+                    if(x < 0 || y < 0 || x > wallMap.width - 1 || y > wallMap.height - 1)continue;
                     if(wallMap.get(x, y) == null)continue;
                     ColliderComponent collider = wallMap.get(x, y);
                     if(collider != null) {
@@ -490,15 +495,20 @@ public class Stage {
     private boolean isProcessingNotified = false;
     private List<MessageReceiverComponent> delayNotified = new ArrayList<>();
     private Queue<Message> messageQueue = new ArrayDeque<>();
+    private Queue<Message> delayMessageQueue = new ArrayDeque<>();
 
     // 全体通知
     public void notifyAll(Message message){
-        // ステージ自身もメッセージを受け取る
-        messageQueue.add(message);
+        if(isProcessingNotified){
+            delayMessageQueue.add(message);
+        }else {
+            // ステージ自身もメッセージを受け取る
+            messageQueue.add(message);
 
-        // 全てのMessageQueueComponentに通知
-        for(MessageReceiverComponent receiver : receivers){
-            receiver.notify(message);
+            // 全てのMessageQueueComponentに通知
+            for (MessageReceiverComponent receiver : receivers) {
+                receiver.notify(message);
+            }
         }
     }
 

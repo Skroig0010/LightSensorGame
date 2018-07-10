@@ -6,6 +6,7 @@ interface ITransformable {
     void setLocal(Vector2 position);
     void setGlobal(Vector2 position);
     void setTransformParent(ITransformable parent);
+    ITransformable getTransformParent();
     Vector2 getGlobal();
     Vector2 getLocal();
 }
