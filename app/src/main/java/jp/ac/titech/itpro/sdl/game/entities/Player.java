@@ -127,9 +127,7 @@ public class Player extends Entity{
 
             @Override
             public void onCollide(ColliderComponent other){
-                if(!other.isTrigger){
-                    View.setTargetPosition(transform.getGlobal().sub(72, 112));
-                }
+                View.setTargetPosition(transform.getGlobal().sub(72, 112));
             }
         };
         addComponent(collider);
